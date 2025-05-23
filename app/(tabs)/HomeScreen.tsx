@@ -15,7 +15,7 @@ export default function HomeScreen() {
     <View style={{ flex: 1 }}>
       {/* Fixed Header */}
       <SafeAreaView style={{
-        backgroundColor: '#006D5B',
+        backgroundColor: '#034C53',
         paddingTop: 12,
         paddingHorizontal: 16,
         paddingBottom: 8,
@@ -46,7 +46,7 @@ export default function HomeScreen() {
           </View>
         </View>
       </SafeAreaView>
-      <ScrollView style={{ flex: 1, backgroundColor: '#006D5B' }}>
+      <ScrollView style={{ flex: 1, backgroundColor: '#034C53' }}>
         {/* Categories */}
         <View style={{ flexDirection: 'row', justifyContent: 'flex-start', paddingVertical: 12, gap: 12, paddingHorizontal: 15 }}>
           <Category icon="flash" label="Flash sales" />
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row', gap: 5,
   },
   heartIcon: {
-    backgroundColor: '#006D5B', borderRadius: 20, padding: 8, position: 'relative',
+    backgroundColor: '#034C53', borderRadius: 20, padding: 8, position: 'relative',
   },
   badge: {
     position: 'absolute', top: -5, right: -5, backgroundColor: 'red', borderRadius: 10, paddingHorizontal: 5,
@@ -108,7 +108,7 @@ function Category({ icon, label }: { icon: any; label: string }) {
         paddingHorizontal: 20,
         marginBottom: 6
       }}>
-        <Ionicons name={icon} size={24} color="#006D5B" />
+        <Ionicons name={icon} size={24} color="#034C53" />
       </View>
       <Text style={{ color: 'white' }}>{label}</Text>
     </View>

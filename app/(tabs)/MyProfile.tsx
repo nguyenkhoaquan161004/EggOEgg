@@ -1,6 +1,7 @@
 import globalStyles from '@/assets/styles/GlobalStyle';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Image, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
@@ -11,6 +12,16 @@ export default function MyProfile() {
     const [phone, setPhone] = useState('0123456789');
     const [address, setAddress] = useState('123 Main St, City, Country');
     const [avatar, setAvatar] = useState(require('../../assets/images/logoNormal.png')); // Replace with your profile image
+
+    const router = useRouter();
+
+    const handleChangeToOrders = () => {
+        router.push('/MyOrders');
+    }
+
+    const handleChangeToDistributorAccount = () => {
+        router.push('/ChangeToDistributorAccountScreen');
+    }
 
     const menuItems = [
         {
@@ -23,19 +34,13 @@ export default function MyProfile() {
             id: 2,
             title: 'My orders',
             icon: 'receipt',
-            onPress: () => alert('My orders')
-        },
-        {
-            id: 3,
-            title: 'Sign up to be Distributor',
-            icon: 'assignment',
-            onPress: () => alert('Sign up')
+            onPress: () => handleChangeToOrders()
         },
         {
             id: 4,
             title: 'Change to distributor account',
             icon: 'attach-money',
-            onPress: () => alert('Change account')
+            onPress: () => handleChangeToDistributorAccount()
         },
         {
             id: 5,

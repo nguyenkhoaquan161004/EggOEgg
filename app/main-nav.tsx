@@ -8,8 +8,11 @@ import 'react-native-reanimated';
 // IMPORT SCREEN 
 import Tabs from './(tabs)/_layout';
 import NotFoundScreen from './+not-found';
+import LoginScreen from './LoginScreen';
 import ProductScreen from './ProductDetail';
 import ShoppingCart from './ShoppingCart';
+import SignUpScreen from './SignUpScreen';
+import StartScreen from './StartScreen';
 
 const Stack = createStackNavigator();
 
@@ -28,11 +31,16 @@ export default function RootLayout() {
   return (
     <NavigationContainer>
       <Stack.Navigator
+        initialRouteName="StartScreen"
         screenOptions={{
           headerShown: false,
           ...TransitionPresets.SlideFromRightIOS,
         }}>
         {/* Tab layout */}
+        <Stack.Screen name='StartScreen' component={StartScreen}></Stack.Screen>
+        <Stack.Screen name='LoginScreen' component={LoginScreen}></Stack.Screen>
+        <Stack.Screen name='SignUpScreen' component={SignUpScreen}></Stack.Screen>
+
         <Stack.Screen name="Tabs" component={Tabs} options={{ headerShown: false }} />
 
         {/* Product detail screen */}
