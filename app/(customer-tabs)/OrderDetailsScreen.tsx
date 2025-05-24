@@ -16,6 +16,7 @@ export default function OrderDetailsScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
                     <Ionicons name="caret-back-outline" size={24} color="#fff" />
                 </TouchableOpacity>
+
                 <Text style={styles.headerTitle}>ORDER INFORMATION</Text>
             </View>
 
@@ -41,6 +42,7 @@ const styles = StyleSheet.create({
     header: {
         flexDirection: 'row',
         alignItems: 'center',
+
         backgroundColor: '#034C53',
         borderBottomWidth: 1,
         borderBottomColor: '#ddd',

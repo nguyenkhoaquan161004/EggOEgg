@@ -1,12 +1,17 @@
-import DataItems from '@/components/data/DataItems';
+
 import ProductCard from '@/components/ProductCard';
+import useEggProducts from '@/hooks/useEggProducts';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
+
 export default function HomeScreen() {
   const Router = useRouter();
-
+  const { products, loading } = useEggProducts();
+  if (loading) {
+    return <Text>Loading...</Text>;
+  }
   const handleChangeToShoppingCart = () => {
     Router.push('/ShoppingCart');
   }
@@ -15,6 +20,7 @@ export default function HomeScreen() {
     <View style={{ flex: 1 }}>
       {/* Fixed Header */}
       <SafeAreaView style={{
+
         backgroundColor: '#034C53',
         paddingTop: 12,
         paddingHorizontal: 16,
@@ -46,6 +52,7 @@ export default function HomeScreen() {
           </View>
         </View>
       </SafeAreaView>
+
       <ScrollView style={{ flex: 1, backgroundColor: '#034C53' }}>
         {/* Categories */}
         <View style={{ flexDirection: 'row', justifyContent: 'flex-start', paddingVertical: 12, gap: 12, paddingHorizontal: 15 }}>
@@ -65,17 +72,23 @@ export default function HomeScreen() {
           borderTopRightRadius: 20,
           paddingTop: 20,
         }}>
-          {DataItems().map((dataItem, i) => (
-            <ProductCard
-              key={dataItem.id}
-              id={dataItem.id}
-              image={dataItem.image}
-              title={dataItem.name}
-              oldPrice={dataItem.oldPrice}
-              newPrice={dataItem.price}
-              sold={dataItem.sold}
-            />
-          ))}
+          {loading ? (
+              <Text>Loading...</Text>
+            ) : (
+              products.map((product) => (
+                <ProductCard
+                  key={product.eggId}
+                  id={product.eggId}
+                  sold={product.soldCount} 
+                  title={product.name}
+                  oldPrice={product.price * 2} 
+                  newPrice={product.price}
+                  image={product.imageURL}
+                />
+              ))
+            )}
+
+
         </View>
       </ScrollView>
     </View>
@@ -90,6 +103,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row', gap: 5,
   },
   heartIcon: {
+
     backgroundColor: '#034C53', borderRadius: 20, padding: 8, position: 'relative',
   },
   badge: {
@@ -108,6 +122,7 @@ function Category({ icon, label }: { icon: any; label: string }) {
         paddingHorizontal: 20,
         marginBottom: 6
       }}>
+
         <Ionicons name={icon} size={24} color="#034C53" />
       </View>
       <Text style={{ color: 'white' }}>{label}</Text>

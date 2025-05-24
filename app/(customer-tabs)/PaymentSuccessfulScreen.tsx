@@ -69,7 +69,7 @@ export default function PaymentSuccessfulScreen() {
                                 image={dataItem.image}
                                 title={dataItem.name}
                                 oldPrice={dataItem.oldPrice}
-                                newPrice={dataItem.newPrice}
+                                newPrice={dataItem.oldPrice}
                                 sold={dataItem.sold}
                             />
                         ))}

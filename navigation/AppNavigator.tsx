@@ -5,6 +5,7 @@ import { AuthProvider } from '@/contexts/AuthContent';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { TransitionPresets } from '@react-navigation/stack';
+import React from 'react';
 
 export type RootStackParamList = {
     StartScreen: undefined;
@@ -29,7 +30,6 @@ const AppNavigator = () => (
             </Stack.Navigator>
         </NavigationContainer>
     </AuthProvider>
-
 );
 
 export default AppNavigator;
