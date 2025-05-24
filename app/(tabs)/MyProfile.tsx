@@ -4,6 +4,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Image, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useAuth } from '../../contexts/AuthContent'; // <-- import context
 
 export default function MyProfile() {
     const [isModalVisible, setIsModalVisible] = React.useState(false);
@@ -11,17 +12,18 @@ export default function MyProfile() {
     const [membership, setMembership] = useState('Gold Member');
     const [phone, setPhone] = useState('0123456789');
     const [address, setAddress] = useState('123 Main St, City, Country');
-    const [avatar, setAvatar] = useState(require('../../assets/images/logoNormal.png')); // Replace with your profile image
+    const [avatar, setAvatar] = useState(require('../../assets/images/logoNormal.png'));
 
     const router = useRouter();
+    const { isLoggedIn, setIsLoggedIn } = useAuth(); // <-- get login state
 
     const handleChangeToOrders = () => {
         router.push('/MyOrders');
-    }
+    };
 
     const handleChangeToDistributorAccount = () => {
         router.push('/ChangeToDistributorAccountScreen');
-    }
+    };
 
     const menuItems = [
         {
@@ -46,7 +48,7 @@ export default function MyProfile() {
             id: 5,
             title: 'Log out',
             icon: 'logout',
-            onPress: () => alert('Logged out'), isLogout: true
+            onPress: () => setIsLoggedIn(false), isLogout: true
         },
     ];
 
@@ -72,7 +74,27 @@ export default function MyProfile() {
         if (!result.canceled) {
             setAvatar({ uri: result.assets[0].uri });
         }
-    }
+    };
+    // Nếu chưa đăng nhập, hiển thị thông báo và nút chuyển về StartScreen
+    // if (!isLoggedIn) {
+    //     return (
+    //         <View style={styles.container}>
+    //             <View style={styles.header}>
+    //                 <Image
+    //                     source={avatar}
+    //                     style={styles.profileImage}
+    //                 />
+    //                 <View style={styles.profileInfor}>
+    //                     <Text style={styles.profileName}>Guest</Text>
+    //                     <Text style={[globalStyles.p2SemiBold, { color: '#FFC1B4' }]}>Welcome!</Text>
+    //                 </View>
+    //             </View>
+    //             <View style={styles.menu}>
+
+    //             </View>
+    //         </View>
+    //     );
+    // }
 
     return (
         <View style={styles.container}>
@@ -80,41 +102,55 @@ export default function MyProfile() {
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => handleChangeAvatar()}>
                     <Image
-                        source={avatar} // Replace with your profile image
+                        source={avatar}
                         style={styles.profileImage}
                     />
                 </TouchableOpacity>
 
                 <View style={styles.profileInfor}>
-                    <Text style={styles.profileName}>{name}</Text>
-                    <Text style={[globalStyles.p2SemiBold, { color: '#FFC1B4' }]}>{membership}</Text>
-
+                    <Text style={styles.profileName}>
+                        {isLoggedIn ? name : 'Guest'}
+                    </Text>
+                    <Text style={[globalStyles.p2SemiBold, { color: '#FFC1B4' }]}>
+                        {isLoggedIn ? membership : 'Welcome to EggOEgg'}</Text>
                 </View>
             </View>
 
             {/* Menu Items */}
             <View style={styles.menu}>
-                {menuItems.map((item) => (
+                {isLoggedIn ? (
+                    menuItems.map((item: any) => (
+                        <TouchableOpacity
+                            key={item.id}
+                            style={[styles.menuItem, item.isLogout && styles.logoutItem]}
+                            onPress={item.onPress}
+                        >
+                            <View style={styles.menuItemLeft}>
+                                <MaterialIcons
+                                    name={item.icon}
+                                    size={20}
+                                    color={item.isLogout ? '#C22727' : '#006D5B'}
+                                />
+                                <Text style={[styles.menuItemText, item.isLogout && styles.logoutText]}>
+                                    {item.title}
+                                </Text>
+                            </View>
+                            {!item.isLogout && (
+                                <Ionicons name="chevron-forward" size={20} color="#666" />
+                            )}
+                        </TouchableOpacity>
+                    ))
+                ) : (
                     <TouchableOpacity
-                        key={item.id}
-                        style={[styles.menuItem, item.isLogout && styles.logoutItem]}
-                        onPress={item.onPress}
+                        style={[styles.menuItem, { justifyContent: 'center' }]}
+                        onPress={() => router.replace('/StartScreen')}
                     >
-                        <View style={styles.menuItemLeft}>
-                            <MaterialIcons
-                                name={item.icon}
-                                size={20}
-                                color={item.isLogout ? '#C22727' : '#006D5B'}
-                            />
-                            <Text style={[styles.menuItemText, item.isLogout && styles.logoutText]}>
-                                {item.title}
-                            </Text>
-                        </View>
-                        {!item.isLogout && (
-                            <Ionicons name="chevron-forward" size={20} color="#666" />
-                        )}
+                        <MaterialIcons name="shopping-cart" size={20} color="#006D5B" />
+                        <Text style={[styles.menuItemText, { marginLeft: 12 }]}>Start Shopping</Text>
                     </TouchableOpacity>
-                ))}
+                )
+
+                }
             </View>
             {/* Modal for Editing Profile */}
             <Modal visible={isModalVisible} transparent animationType="slide">
@@ -159,6 +195,8 @@ export default function MyProfile() {
         </View>
     );
 }
+
+// ...styles giữ nguyên...
 
 const styles = StyleSheet.create({
     container: {

@@ -69,7 +69,7 @@ export default function ProductDetailScreen() {
                 {/* Top image */}
                 <View style={{ position: 'relative' }}>
                     <Image
-                        source={require('../assets/images/logoNormal.png')}
+                        source={require('../../assets/images/logoNormal.png')}
                         style={{ width: '100%', height: 300, borderBottomLeftRadius: 30, borderBottomRightRadius: 30 }}
                     />
 
@@ -97,7 +97,7 @@ export default function ProductDetailScreen() {
                     {/* Shop info */}
                     <View style={styles.shopCard}>
                         <Image
-                            source={require('../assets/images/logoNormal.png')}
+                            source={require('../../assets/images/logoNormal.png')}
                             style={styles.shopAvatar}
                         />
                         <View style={{ flex: 1, marginLeft: 12 }}>

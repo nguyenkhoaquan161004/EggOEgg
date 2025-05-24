@@ -10,7 +10,7 @@ export default function PickupLocationScreen() {
             name: 'Điểm nhận hàng A',
             address: '12/302, đường Nguyễn Tri Phương, Phố Hòa Khánh, quận Tân Bình, thành phố Hồ Chí Minh',
             distance: '3km from you',
-            image: require('../assets/images/logoNormal.png'),
+            image: require('../../assets/images/logoNormal.png'),
             note: 'Giao hàng tận nơi',
         },
         {
@@ -18,7 +18,7 @@ export default function PickupLocationScreen() {
             name: 'Điểm nhận hàng B',
             address: '45/678, đường Lê Văn Sỹ, quận 3, thành phố Hồ Chí Minh',
             distance: '5km from you',
-            image: require('../assets/images/logoNormal.png'),
+            image: require('../../assets/images/logoNormal.png'),
             note: 'Giao hàng tận nơi',
         },
         {
@@ -26,7 +26,7 @@ export default function PickupLocationScreen() {
             name: 'Điểm nhận hàng C',
             address: '123/456, đường Lê Thánh Tôn, quận 1, thành phố Hồ Chí Minh',
             distance: '2km from you',
-            image: require('../assets/images/logoNormal.png'),
+            image: require('../../assets/images/logoNormal.png'),
             note: 'Giao hàng tận nơi',
         },
         // Add more locations as needed
