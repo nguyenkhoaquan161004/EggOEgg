@@ -1,10 +1,10 @@
 import globalStyles from '@/assets/styles/GlobalStyle';
+import useAccount from '@/hooks/useAccount';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Image, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-
 export default function MyProfile() {
     const [isModalVisible, setIsModalVisible] = React.useState(false);
     const [name, setName] = useState('TRAN THI KIEU OANH');
@@ -12,8 +12,15 @@ export default function MyProfile() {
     const [phone, setPhone] = useState('0123456789');
     const [address, setAddress] = useState('123 Main St, City, Country');
     const [avatar, setAvatar] = useState(require('../../assets/images/logoNormal.png')); // Replace with your profile image
-
     const router = useRouter();
+    const { id } = useLocalSearchParams();
+    const numericId = Array.isArray(id) ? Number(id[0]) : Number(id);
+
+    const { account, loading } = useAccount(numericId);
+    if (loading) {
+        return <Text>Loading...</Text>;
+    }
+
 
     const handleChangeToOrders = () => {
         router.push('/MyOrders');
@@ -86,7 +93,7 @@ export default function MyProfile() {
                 </TouchableOpacity>
 
                 <View style={styles.profileInfor}>
-                    <Text style={styles.profileName}>{name}</Text>
+                    <Text style={styles.profileName}>{account?.name}</Text>
                     <Text style={[globalStyles.p2SemiBold, { color: '#FFC1B4' }]}>{membership}</Text>
 
                 </View>
