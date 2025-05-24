@@ -9,9 +9,9 @@ const ShoppingCart = () => {
 
     const [selectAll, setSelectAll] = useState(false);
     const [items, setItems] = useState([
-        { id: 1, name: '6 of Duck eggs', price: 0.89, quantity: 5, oldPrice: 1.09, image: require('../assets/images/logoNormal.png'), checked: false },
-        { id: 2, name: '6 of Duck eggs', price: 0.89, quantity: 5, oldPrice: 1.09, image: require('../assets/images/logoNormal.png'), checked: false },
-        { id: 3, name: '6 of Duck eggs', price: 0.89, quantity: 5, oldPrice: 1.09, image: require('../assets/images/logoNormal.png'), checked: false },
+        { id: 1, name: '6 of Duck eggs', price: 0.89, quantity: 5, oldPrice: 1.09, image: require('../../assets/images/logoNormal.png'), checked: false },
+        { id: 2, name: '6 of Duck eggs', price: 0.89, quantity: 5, oldPrice: 1.09, image: require('../../assets/images/logoNormal.png'), checked: false },
+        { id: 3, name: '6 of Duck eggs', price: 0.89, quantity: 5, oldPrice: 1.09, image: require('../../assets/images/logoNormal.png'), checked: false },
     ]);
     const checkedItems = items.filter(item => item.checked);
 

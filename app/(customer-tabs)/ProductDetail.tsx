@@ -11,12 +11,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function ProductDetailScreen() {
     const { id } = useLocalSearchParams();
     const { product, loading } = useProductDetail(Number(id));
-    const { products:similarProducts, loading: similarProductsLoading } = useEggProducts();
+    const { products: similarProducts, loading: similarProductsLoading } = useEggProducts();
     const navigation = useNavigation();
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [quantity, setQuantity] = useState(1);
     const [isBuyNow, setIsBuyNow] = useState(false);
-    const { store:storeData, loading:storeLoading } = useStore(product?.storeId || 3);
+    const { store: storeData, loading: storeLoading } = useStore(product?.storeId || 3);
 
     const Router = useRouter();
 
@@ -72,6 +72,9 @@ export default function ProductDetailScreen() {
                 {/* Top image */}
                 <View style={{ position: 'relative' }}>
                     <Image
+
+                        // source={require('../../assets/images/logoNormal.png')}
+
                         source={{ uri: product.imageURL }}
                         style={{ width: '100%', height: 300, borderBottomLeftRadius: 30, borderBottomRightRadius: 30 }}
                     />
@@ -82,7 +85,7 @@ export default function ProductDetailScreen() {
                 <View style={{ padding: 16 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <Text style={{ color: '#C22727', fontWeight: 'bold', fontSize: 22 }}>${product.price}</Text>
-                        <Text style={{ marginLeft: 10, color: '#999', textDecorationLine: 'line-through' }}>${product.price*22}</Text>
+                        <Text style={{ marginLeft: 10, color: '#999', textDecorationLine: 'line-through' }}>${product.price * 22}</Text>
                         <Text style={{ marginLeft: 'auto', color: '#666' }}>Sold {product.soldCount}</Text>
                     </View>
                     <Text style={StyleSheet.flatten([{ marginTop: 8, fontSize: 18 }, globalStyles.p1Medium])}>{product.name}</Text>
@@ -100,12 +103,12 @@ export default function ProductDetailScreen() {
                     {/* Shop info */}
                     <View style={styles.shopCard}>
                         <Image
-                            source={require('../assets/images/logoNormal.png')}
+                            source={require('../../assets/images/logoNormal.png')}
                             style={styles.shopAvatar}
                         />
                         <View style={{ flex: 1, marginLeft: 12 }}>
                             <Text style={{ fontWeight: 'bold' }}>{storeData?.storeName}</Text>
-                            <Text style={{ color: '#666' }}>{storeData?.eggCount } products</Text>
+                            <Text style={{ color: '#666' }}>{storeData?.eggCount} products</Text>
                         </View>
                         <TouchableOpacity style={styles.visitBtn}>
                             <Text style={{ color: '#006D5B', fontWeight: 'bold' }}>Visit</Text>
@@ -115,7 +118,7 @@ export default function ProductDetailScreen() {
                     {/* Description */}
                     <Text style={{ fontWeight: 'bold', fontSize: 16, marginTop: 12 }}>Product description</Text>
                     <Text style={{ marginTop: 4, color: '#333' }}>
-                       {product.description || 'No description available for this product.'}
+                        {product.description || 'No description available for this product.'}
                     </Text>
 
                     {/* Similar products (placeholder) */}
@@ -134,19 +137,19 @@ export default function ProductDetailScreen() {
                     marginTop: 10,
                 }}>
                     {similarProductsLoading ? (
-                        <Text>Loading...</Text>):
-                    (similarProducts.map((product) => (
-                        <ProductCard
-                        key={product.eggId}
-                        id={product.eggId}
-                        sold={product.soldCount} 
-                        title={product.name}
-                        oldPrice={product.price * 2} 
-                        newPrice={product.price}
-                        image={product.imageURL}
-                        />
-                    ))
-                )}
+                        <Text>Loading...</Text>) :
+                        (similarProducts.map((product) => (
+                            <ProductCard
+                                key={product.eggId}
+                                id={product.eggId}
+                                sold={product.soldCount}
+                                title={product.name}
+                                oldPrice={product.price * 2}
+                                newPrice={product.price}
+                                image={product.imageURL}
+                            />
+                        ))
+                        )}
                 </View>
             </ScrollView>
 
