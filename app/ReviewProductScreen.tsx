@@ -51,19 +51,11 @@ export default function ReviewProductScreen() {
         router.replace(`/(tabs)/MyOrders`);
     };
 
-<<<<<<< HEAD
-
-=======
->>>>>>> ad4e3fa7a2a80e2c7cd7bdce2e3c4d3ab14dbe56
     return (
         <View style={styles.container}>
             {/* Header with Back Button */}
             <SafeAreaView style={styles.header}>
-<<<<<<< HEAD
-                <TouchableOpacity onPress={() => router.replace(`/(tabs)/MyOrders`)} style={styles.backButton}>
-=======
                 <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
->>>>>>> ad4e3fa7a2a80e2c7cd7bdce2e3c4d3ab14dbe56
                     <Ionicons name="caret-back-outline" size={24} color="#fff" />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Review</Text>

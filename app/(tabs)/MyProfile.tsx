@@ -1,10 +1,7 @@
 import globalStyles from '@/assets/styles/GlobalStyle';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-<<<<<<< HEAD
-=======
 import { useRouter } from 'expo-router';
->>>>>>> ad4e3fa7a2a80e2c7cd7bdce2e3c4d3ab14dbe56
 import React, { useState } from 'react';
 import { Image, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
@@ -16,8 +13,6 @@ export default function MyProfile() {
     const [address, setAddress] = useState('123 Main St, City, Country');
     const [avatar, setAvatar] = useState(require('../../assets/images/logoNormal.png')); // Replace with your profile image
 
-<<<<<<< HEAD
-=======
     const router = useRouter();
 
     const handleChangeToOrders = () => {
@@ -28,7 +23,6 @@ export default function MyProfile() {
         router.push('/ChangeToDistributorAccountScreen');
     }
 
->>>>>>> ad4e3fa7a2a80e2c7cd7bdce2e3c4d3ab14dbe56
     const menuItems = [
         {
             id: 1,
@@ -40,27 +34,13 @@ export default function MyProfile() {
             id: 2,
             title: 'My orders',
             icon: 'receipt',
-<<<<<<< HEAD
-            onPress: () => alert('My orders')
-        },
-        {
-            id: 3,
-            title: 'Sign up to be Distributor',
-            icon: 'assignment',
-            onPress: () => alert('Sign up')
-=======
             onPress: () => handleChangeToOrders()
->>>>>>> ad4e3fa7a2a80e2c7cd7bdce2e3c4d3ab14dbe56
         },
         {
             id: 4,
             title: 'Change to distributor account',
             icon: 'attach-money',
-<<<<<<< HEAD
-            onPress: () => alert('Change account')
-=======
             onPress: () => handleChangeToDistributorAccount()
->>>>>>> ad4e3fa7a2a80e2c7cd7bdce2e3c4d3ab14dbe56
         },
         {
             id: 5,

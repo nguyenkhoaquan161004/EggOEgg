@@ -16,11 +16,8 @@ export default function OrderDetailsScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
                     <Ionicons name="caret-back-outline" size={24} color="#fff" />
                 </TouchableOpacity>
-<<<<<<< HEAD
-                <Text style={styles.headerTitle}>Order Information</Text>
-=======
+
                 <Text style={styles.headerTitle}>ORDER INFORMATION</Text>
->>>>>>> ad4e3fa7a2a80e2c7cd7bdce2e3c4d3ab14dbe56
             </View>
 
             <ScrollView
@@ -45,11 +42,8 @@ const styles = StyleSheet.create({
     header: {
         flexDirection: 'row',
         alignItems: 'center',
-<<<<<<< HEAD
-        backgroundColor: '#006D5B',
-=======
+
         backgroundColor: '#034C53',
->>>>>>> ad4e3fa7a2a80e2c7cd7bdce2e3c4d3ab14dbe56
         borderBottomWidth: 1,
         borderBottomColor: '#ddd',
         padding: 20,

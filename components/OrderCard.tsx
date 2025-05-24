@@ -23,36 +23,6 @@ export default function OrderCard({ order }) {
                     </View>
                 </View>
             ))}
-<<<<<<< HEAD
-            <View style={styles.orderDetails}>
-                <Text style={styles.textGray}>Payment time: {order.paymentTime}</Text>
-                <Text style={styles.textGray}>Payment method: {order.paymentMethod}</Text>
-                <Text style={styles.textGray}>Total: ${order.total.toFixed(2)}</Text>
-            </View>
-            {order.status === 'DELIVERED' && (
-                <View style={styles.actionButtons}>
-                    <TouchableOpacity style={styles.actionButton}
-                        onPress={() =>
-                            router.push({
-                                pathname: `/ExchangeAndReturnScreen`,
-                                params: { order: JSON.stringify(order) },
-                            })
-                        }>
-                        <Text style={styles.actionButtonText}>Exchange/Return</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={[styles.actionButton, styles.reviewButton]}
-                        onPress={() =>
-                            router.push({
-                                pathname: `/ReviewProductScreen`,
-                                params: { order: JSON.stringify(order) },
-                            })
-                        }>
-                        <Text style={[styles.actionButtonText, { color: '#006D5B' }]}>Review</Text>
-                    </TouchableOpacity>
-                </View>
-            )}
-        </View>
-=======
             {(order.status === 'DIS-DELIVERED' && order.customer) || (order.status === 'RETURNED' && order.customer) ? (
                 <>
                     <View style={styles.customerInfo}>
@@ -115,7 +85,6 @@ export default function OrderCard({ order }) {
                 )}
             </View>
         </View >
->>>>>>> ad4e3fa7a2a80e2c7cd7bdce2e3c4d3ab14dbe56
     );
 }
 
@@ -151,8 +120,6 @@ const styles = StyleSheet.create({
         fontSize: 12,
         marginTop: 4,
     },
-<<<<<<< HEAD
-=======
     customerInfo: {
         marginTop: 10,
         padding: 10,
@@ -164,7 +131,6 @@ const styles = StyleSheet.create({
         color: '#034C53',
         marginBottom: 4,
     },
->>>>>>> ad4e3fa7a2a80e2c7cd7bdce2e3c4d3ab14dbe56
     orderDetails: {
         marginTop: 10,
     },
