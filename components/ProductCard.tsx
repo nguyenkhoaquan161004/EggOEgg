@@ -2,7 +2,11 @@ import { useRouter } from 'expo-router';
 import React from 'react';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
 
+<<<<<<< HEAD
 export default function ProductCard({ id, image, title, oldPrice, newPrice, sold }: { id: number, image: any, title: string, oldPrice: number, newPrice: number, sold: number }) {
+=======
+export default function ProductCard({ id, image, title, oldPrice, newPrice, sold }: { id: string, image: any, title: string, oldPrice: number, newPrice: number, sold: number }) {
+>>>>>>> ad4e3fa7a2a80e2c7cd7bdce2e3c4d3ab14dbe56
     const router = useRouter();
 
     const handlePress = () => {
@@ -18,7 +22,11 @@ export default function ProductCard({ id, image, title, oldPrice, newPrice, sold
 
         }} onPress={handlePress}>
             <Image
+<<<<<<< HEAD
                 source={{uri:image}}
+=======
+                source={image}
+>>>>>>> ad4e3fa7a2a80e2c7cd7bdce2e3c4d3ab14dbe56
                 style={{ width: '100%', height: 120 }}
                 defaultSource={require('../assets/images/logoNormal.png')}
             />
