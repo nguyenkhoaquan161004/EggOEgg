@@ -6,10 +6,10 @@ import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
 // IMPORT SCREEN 
+import ProductScreen from './(customer-tabs)/ProductDetail';
+import ShoppingCart from './(customer-tabs)/ShoppingCart';
 import Tabs from './(tabs)/_layout';
 import NotFoundScreen from './+not-found';
-import ProductScreen from './ProductDetail';
-import ShoppingCart from './ShoppingCart';
 
 const Stack = createStackNavigator();
 
