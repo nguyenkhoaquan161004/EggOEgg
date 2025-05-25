@@ -2,7 +2,7 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import Config from '../constants';
 import { Product } from '../types/Product';
-export default function useEggProducts(id: number) {
+export default function useProductDetail(id: number) {
     const [product, setProduct] = useState<Product>();
     const [loading, setLoading] = useState(true);
 

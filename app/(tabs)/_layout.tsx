@@ -28,6 +28,8 @@ export default function TabLayout() {
       />
       <Tabs.Screen
         name="MyOrders"
+        initialParams={{ id: 5 }}
+
         options={{
           title: 'MY ORDERS',
           tabBarIcon: ({ color }) => <Ionicons size={28} name="cart" color={color} />,
@@ -42,6 +44,7 @@ export default function TabLayout() {
       />
       <Tabs.Screen
         name="MyProfile"
+        initialParams={{ id: 5 }}
         options={{
           title: 'PROFILE',
           tabBarIcon: ({ color }) => <Ionicons size={28} name="person" color={color} />,
