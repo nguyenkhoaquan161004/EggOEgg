@@ -1,6 +1,7 @@
 import globalStyles from '@/assets/styles/GlobalStyle';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Dimensions, Image, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
@@ -17,6 +18,8 @@ const mockProducts = Array(24).fill({
 });
 
 const ProductManagement = () => {
+    const router = useRouter();
+
     const [searchText, setSearchText] = useState('');
     const [selectedProducts, setSelectedProducts] = useState<number[]>([]);
     const [selectAll, setSelectAll] = useState(false);
@@ -98,7 +101,11 @@ const ProductManagement = () => {
             <View style={styles.header}>
                 <Text style={styles.logo}>EggOEgg <Text style={styles.manager}>Manager</Text></Text>
                 <View style={styles.navRow}>
-                    <TouchableOpacity style={styles.navBtn}><Text style={[styles.navText, { color: '#034C53' }]}>SIGNOUT</Text></TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.navBtn}
+                        onPress={() => router.replace('/W_StartScreen')}>
+                        <Text style={[styles.navText, { color: '#034C53' }]}>SIGNOUT</Text>
+                    </TouchableOpacity>
                 </View>
             </View>
 
