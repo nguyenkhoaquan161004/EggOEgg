@@ -1,15 +1,17 @@
 import ProductCard from '@/components/ProductCard';
-import DataItems from '@/components/data/DataItems';
+import useEggProducts from '@/hooks/useEggProducts';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRouter } from 'expo-router';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
 export default function PaymentSuccessfulScreen() {
     const router = useRouter();
     const navigation = useNavigation();
-
+   const { products, loading } = useEggProducts();
+   if (loading) {
+    return <Text>Loading...</Text>;
+   }
     const handleChangeToShoppingCart = () => {
 
         router.push('/ShoppingCart');
@@ -62,17 +64,21 @@ export default function PaymentSuccessfulScreen() {
                         borderTopRightRadius: 20,
                         paddingTop: 20,
                     }}>
-                        {DataItems().map((dataItem, i) => (
-                            <ProductCard
-                                key={dataItem.id}
-                                id={dataItem.id}
-                                image={dataItem.image}
-                                title={dataItem.name}
-                                oldPrice={dataItem.oldPrice}
-                                newPrice={dataItem.oldPrice}
-                                sold={dataItem.sold}
-                            />
-                        ))}
+                        {loading ? (
+                            <Text>Loading...</Text>
+                            ) : (
+                            products.map((product) => (
+                                <ProductCard
+                                key={product.eggId}
+                                id={product.eggId}
+                                sold={product.soldCount} 
+                                title={product.name}
+                                oldPrice={product.price * 2} 
+                                newPrice={product.price}
+                                image={product.imageURL}
+                                />
+                            ))
+                            )}
                     </View>
                 </View>
             </ScrollView>

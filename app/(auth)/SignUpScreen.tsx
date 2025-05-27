@@ -1,18 +1,51 @@
 import globalStyles from '@/assets/styles/GlobalStyle';
+import Config from '@/constants';
 import { useAuth } from '@/contexts/AuthContent';
 import { Ionicons } from '@expo/vector-icons';
+import axios from 'axios';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-
 export default function SignUpScreen() {
     const router = useRouter();
+    const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
+    const [email, setEmail] = useState('');
+    const [address, setAddress] = useState('');
     const [password, setPassword] = useState('');
     const [confirm, setConfirm] = useState('');
+    
 
-    const { setIsLoggedIn } = useAuth();
+    const { setIsLoggedIn,setRole,setUserId } = useAuth();
 
+    const handleSignUp = async () => {
+      if (password !== confirm) {
+        alert("Passwords do not match!");
+        return;
+      }
+    
+      try {
+        const response = await axios.post(`${Config.API_BASE_URL}/api/Auth/register`, {
+          name,
+          phone,
+          email,
+          address,
+          password,
+          role: 2,
+        });
+    
+        if (response.status === 200 || response.status === 201) {
+            setIsLoggedIn(true);
+            setUserId(response.data.id);
+            setRole(response.data.role);;
+          router.replace('../(tabs)/HomeScreen');
+        }
+      } catch (error) {
+        console.error('Sign up error:', error);
+        alert('Sign up failed. Please try again.');
+      }
+    };
+    
     return (
         <View style={styles.container}>
             <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
@@ -24,11 +57,31 @@ export default function SignUpScreen() {
             <Text style={[styles.title, globalStyles.h2]}>SIGN UP</Text>
             <TextInput
                 style={styles.input}
+                placeholder="Name"
+                value={name}
+                onChangeText={setName}
+            />
+            <TextInput
+                style={styles.input}
                 placeholder="Phone"
                 value={phone}
                 onChangeText={setPhone}
                 keyboardType="phone-pad"
             />
+            <TextInput
+                style={styles.input}
+                placeholder="Email"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+            />
+            <TextInput
+                style={styles.input}
+                placeholder="Address"
+                value={address}
+                onChangeText={setAddress}
+            />
+
             <TextInput
                 style={styles.input}
                 placeholder="Password"
@@ -44,10 +97,7 @@ export default function SignUpScreen() {
                 secureTextEntry
             />
             <TouchableOpacity style={styles.signupBtn}
-                onPress={() => {
-                    setIsLoggedIn(true);
-                    router.replace('../(tabs)/HomeScreen')
-                }}>
+                onPress={() => handleSignUp()}>
                 <Text style={[styles.signupBtnText, globalStyles.h4]}>Sign up</Text>
             </TouchableOpacity>
             <View style={styles.bottomRow}>

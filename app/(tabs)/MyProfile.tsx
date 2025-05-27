@@ -2,37 +2,22 @@ import globalStyles from '@/assets/styles/GlobalStyle';
 import useAccount from '@/hooks/useAccount';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Image, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-<<<<<<< HEAD
-=======
 import { useAuth } from '../../contexts/AuthContent'; // <-- import context
 
->>>>>>> 022d868f8a975b8b93c4e383c0ffb90bfc26ef5b
 export default function MyProfile() {
     const [isModalVisible, setIsModalVisible] = React.useState(false);
     const [name, setName] = useState('TRAN THI KIEU OANH');
     const [membership, setMembership] = useState('Gold Member');
     const [phone, setPhone] = useState('0123456789');
     const [address, setAddress] = useState('123 Main St, City, Country');
-<<<<<<< HEAD
-    const [avatar, setAvatar] = useState(require('../../assets/images/logoNormal.png')); // Replace with your profile image
-    const router = useRouter();
-    const { id } = useLocalSearchParams();
-    const numericId = Array.isArray(id) ? Number(id[0]) : Number(id);
-
-    const { account, loading } = useAccount(numericId);
-    if (loading) {
-        return <Text>Loading...</Text>;
-    }
-
-=======
     const [avatar, setAvatar] = useState(require('../../assets/images/logoNormal.png'));
-
+    const { userId } = useAuth();
+    const { account, loading } = useAccount(userId||2); // <-- get account info
     const router = useRouter();
     const { isLoggedIn, setIsLoggedIn } = useAuth(); // <-- get login state
->>>>>>> 022d868f8a975b8b93c4e383c0ffb90bfc26ef5b
 
     const handleChangeToOrders = () => {
         router.push('/MyOrders');
@@ -125,17 +110,11 @@ export default function MyProfile() {
                 </TouchableOpacity>
 
                 <View style={styles.profileInfor}>
-<<<<<<< HEAD
-                    <Text style={styles.profileName}>{account?.name}</Text>
-                    <Text style={[globalStyles.p2SemiBold, { color: '#FFC1B4' }]}>{membership}</Text>
-
-=======
                     <Text style={styles.profileName}>
-                        {isLoggedIn ? name : 'Guest'}
+                        {isLoggedIn ? account?.name : 'Guest'}
                     </Text>
                     <Text style={[globalStyles.p2SemiBold, { color: '#FFC1B4' }]}>
-                        {isLoggedIn ? membership : 'Welcome to EggOEgg'}</Text>
->>>>>>> 022d868f8a975b8b93c4e383c0ffb90bfc26ef5b
+                        {isLoggedIn ? account?.role : 'Welcome to EggOEgg'}</Text>
                 </View>
             </View>
 
@@ -183,19 +162,19 @@ export default function MyProfile() {
                         <TextInput
                             style={styles.input}
                             placeholder="Enter your name"
-                            value={name}
+                            value={account?.name || name}
                             onChangeText={setName}
                         />
                         <TextInput
                             style={styles.input}
                             placeholder="Enter phone number"
-                            value={phone}
+                            value={account?.phone || phone}
                             onChangeText={setPhone}
                         />
                         <TextInput
                             style={styles.input}
                             placeholder="Enter address"
-                            value={address}
+                            value={account?.address || address}
                             onChangeText={setAddress}
                         />
                         <View style={styles.modalButtons}>

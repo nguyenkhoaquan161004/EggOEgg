@@ -6,11 +6,11 @@ import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
 // IMPORT SCREEN 
+import React from 'react';
+import ProductScreen from '../app/(customer-tabs)/ProductDetail';
+import ShoppingCart from '../app/(customer-tabs)/ShoppingCart';
 import Tabs from './(tabs)/_layout';
 import NotFoundScreen from './+not-found';
-import ProductScreen from './ProductDetail';
-import ShoppingCart from './ShoppingCart';
-
 const Stack = createStackNavigator();
 
 export default function RootLayout() {

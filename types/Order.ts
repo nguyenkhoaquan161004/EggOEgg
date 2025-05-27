@@ -10,7 +10,13 @@ export interface Order {
   shippingAddress: string;
   complaints: any[];
   orderDetails: OrderDetail[];
-  payments: Payment[];
-    returnRequest: any| null;
+  payment: Payment;
+  returnRequest: any| null;
 }
-export type OrderStatus = 'Pending' | 'Shipped' | 'Delivered' | 'Cancelled' ; 
+export type OrderStatus = 'SHIPPING' | 'DELIVERED' | 'DISDELIVERED' | 'RETURN' ; 
+export interface CreateOrderCommand {
+  buyerId: number;
+  distributorId: number;
+  paymentMethod?: string | null;
+  shippingAddress?: string | null;
+}

@@ -1,5 +1,7 @@
 import globalStyles from '@/assets/styles/GlobalStyle';
 import ProductCard from '@/components/ProductCard';
+import { useAuth } from '@/contexts/AuthContent';
+import useAddToCart from '@/hooks/useAddToCart';
 import useEggProducts from '@/hooks/useEggProducts';
 import useProductDetail from '@/hooks/useProductDetail';
 import useStore from '@/hooks/useStore';
@@ -17,14 +19,20 @@ export default function ProductDetailScreen() {
     const [quantity, setQuantity] = useState(1);
     const [isBuyNow, setIsBuyNow] = useState(false);
     const { store: storeData, loading: storeLoading } = useStore(product?.storeId || 3);
-
+    const {userId}=useAuth();
     const Router = useRouter();
+    const { addToCart, error, success } = useAddToCart();
 
     const handleChangeToShoppingCart = () => {
         Router.push('/ShoppingCart');
     }
 
     const handleAddToCart = () => {
+        addToCart({
+            eggId: Number(id)||1,   
+            quantity: quantity,
+            buyerId: userId||3 , 
+        });
         setIsModalVisible(false);
     }
 

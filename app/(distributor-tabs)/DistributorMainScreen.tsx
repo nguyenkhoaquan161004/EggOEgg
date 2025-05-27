@@ -1,3 +1,5 @@
+import { useAuth } from '@/contexts/AuthContent';
+import useAccount from '@/hooks/useAccount';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
@@ -12,7 +14,8 @@ export default function DistributorMainScreen() {
     const [phone, setPhone] = useState('0123456789');
     const [profileImage, setProfileImage] = useState(require('../../assets/images/logoNormal.png'));
     const [placeImages, setPlaceImages] = useState([]);
-
+    const { userId } = useAuth();
+    const { account, loading } = useAccount(userId||2); // <-- get account info
     const router = useRouter();
 
     const menuItems = [
@@ -82,8 +85,8 @@ export default function DistributorMainScreen() {
                     style={styles.profileImage}
                 />
                 <View style={styles.profileInfor}>
-                    <Text style={styles.profileName}>{name}</Text>
-                    <Text style={styles.profileRole}>{description}</Text>
+                    <Text style={styles.profileName}>{account?.name}</Text>
+                    <Text style={styles.profileRole}>{account?.role}</Text>
                 </View>
             </View>
             {/* Menu Items */}
@@ -124,13 +127,13 @@ export default function DistributorMainScreen() {
                             <TextInput
                                 style={styles.input}
                                 placeholder="Enter your name"
-                                value={name}
+                                value={account?.name||name} 
                                 onChangeText={setName}
                             />
                             <TextInput
                                 style={styles.input}
                                 placeholder="Enter address"
-                                value={address}
+                                value={account?.address||address}
                                 onChangeText={setAddress}
                             />
                             <TextInput
@@ -142,7 +145,7 @@ export default function DistributorMainScreen() {
                             <TextInput
                                 style={styles.input}
                                 placeholder="Enter phone number"
-                                value={phone}
+                                value={account?.phone||phone}
                                 onChangeText={setPhone}
                                 keyboardType="phone-pad"
                             />
