@@ -13,10 +13,18 @@ export default function MyProfile() {
     const [membership, setMembership] = useState('Gold Member');
     const [phone, setPhone] = useState('0123456789');
     const [address, setAddress] = useState('123 Main St, City, Country');
+
     const [avatar, setAvatar] = useState(require('../../assets/images/logoNormal.png'));
     const { userId } = useAuth();
-    const { account, loading } = useAccount(userId||2); // <-- get account info
     const router = useRouter();
+
+    const numericId = Array.isArray(userId) ? Number(userId[0]) : Number(userId);
+
+    const { account, loading } = useAccount(numericId);
+    if (loading) {
+        return <Text>Loading...</Text>;
+    }
+
     const { isLoggedIn, setIsLoggedIn } = useAuth(); // <-- get login state
 
     const handleChangeToOrders = () => {
@@ -115,6 +123,7 @@ export default function MyProfile() {
                     </Text>
                     <Text style={[globalStyles.p2SemiBold, { color: '#FFC1B4' }]}>
                         {isLoggedIn ? account?.role : 'Welcome to EggOEgg'}</Text>
+
                 </View>
             </View>
 
