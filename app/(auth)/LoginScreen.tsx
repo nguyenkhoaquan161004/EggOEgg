@@ -1,16 +1,44 @@
 import globalStyles from '@/assets/styles/GlobalStyle';
+import Config from '@/constants';
 import { useAuth } from '@/contexts/AuthContent';
 import { Ionicons } from '@expo/vector-icons';
+import axios from 'axios';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-
 export default function LoginScreen() {
     const router = useRouter();
-    const [phone, setPhone] = useState('');
+    const [email,setEmail] = useState('');
     const [password, setPassword] = useState('');
 
     const { setIsLoggedIn } = useAuth();
+
+    const { setUserId, setRole } = useAuth();
+    const handleLogin = async () => {
+        try {
+          const response = await axios.post(`${Config.API_BASE_URL}/api/Auth/login`, {
+           email,
+            password
+          });
+      
+          if (response.status === 200) {
+            setIsLoggedIn(true);
+            setUserId(response.data.userId);
+            setRole(response.data.role);
+            
+              if (response.data.role === 'Distributor') {
+                router.replace('/(distributor-tabs)/DistributorMainScreen');
+              }
+              else if (response.data.role === 'Buyer') {
+                router.replace('/(tabs)/HomeScreen');
+              }
+          }
+        } catch (error) {
+          console.error('Login error:', error);
+          alert('Invalid credentials. Please try again.');
+        }
+      };
+      
     return (
         <View style={styles.container}>
             <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
@@ -23,10 +51,10 @@ export default function LoginScreen() {
             <Text style={[styles.title, globalStyles.h2]}>LOGIN</Text>
             <TextInput
                 style={styles.input}
-                placeholder="Phone"
-                value={phone}
-                onChangeText={setPhone}
-                keyboardType="phone-pad"
+                placeholder="Email"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
             />
             <TextInput
                 style={styles.input}
@@ -40,10 +68,7 @@ export default function LoginScreen() {
             </TouchableOpacity>
             <TouchableOpacity
                 style={styles.loginBtn}
-                onPress={() => {
-                    setIsLoggedIn(true);
-                    router.replace('/(tabs)/HomeScreen');
-                }}>
+                onPress={() =>handleLogin()}>
                 <Text style={[styles.loginText, globalStyles.h4]}>Login</Text>
             </TouchableOpacity>
             <View style={styles.bottomRow}>
@@ -146,3 +171,6 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
 });
+
+
+

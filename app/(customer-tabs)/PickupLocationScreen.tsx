@@ -1,42 +1,21 @@
+import usePickupPoints from '@/hooks/usePickupPoints';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-
 export default function PickupLocationScreen() {
     const router = useRouter();
-    const locations = [
-        {
-            id: 1,
-            name: 'Điểm nhận hàng A',
-            address: '12/302, đường Nguyễn Tri Phương, Phố Hòa Khánh, quận Tân Bình, thành phố Hồ Chí Minh',
-            distance: '3km from you',
-            image: require('../../assets/images/logoNormal.png'),
-            note: 'Giao hàng tận nơi',
-        },
-        {
-            id: 2,
-            name: 'Điểm nhận hàng B',
-            address: '45/678, đường Lê Văn Sỹ, quận 3, thành phố Hồ Chí Minh',
-            distance: '5km from you',
-            image: require('../../assets/images/logoNormal.png'),
-            note: 'Giao hàng tận nơi',
-        },
-        {
-            id: 3,
-            name: 'Điểm nhận hàng C',
-            address: '123/456, đường Lê Thánh Tôn, quận 1, thành phố Hồ Chí Minh',
-            distance: '2km from you',
-            image: require('../../assets/images/logoNormal.png'),
-            note: 'Giao hàng tận nơi',
-        },
-        // Add more locations as needed
-    ];
+    const { callbackKey } = useLocalSearchParams();
 
-    const { callbackKey } = useLocalSearchParams(); // Use useLocalSearchParams to get query params
+    const { pickupPoints, loading, error } = usePickupPoints();
+
     const [searchQuery, setSearchQuery] = React.useState('');
-    const [filteredLocations, setFilteredLocations] = React.useState(locations);
+    const [filteredLocations, setFilteredLocations] = React.useState(pickupPoints);
 
-    const handleLocationSelect = (location: { name: string; address: string; note: string }) => {
+    useEffect(() => {
+        setFilteredLocations(pickupPoints);
+    }, [pickupPoints]);
+
+    const handleLocationSelect = (location: any) => {
         if (callbackKey) {
             router.replace({
                 pathname: '/TransactionInformationScreen',
@@ -50,30 +29,29 @@ export default function PickupLocationScreen() {
     const handleSearch = (query: string) => {
         setSearchQuery(query);
         if (query.trim() === '') {
-            setFilteredLocations(locations);
+            setFilteredLocations(pickupPoints);
         } else {
-            const filtered = locations.filter(location =>
+            const filtered = pickupPoints.filter(location =>
                 location.name.toLowerCase().includes(query.toLowerCase()) ||
                 location.address.toLowerCase().includes(query.toLowerCase())
             );
             setFilteredLocations(filtered);
         }
-    }
+    };
 
     const renderLocationItem = ({ item }: { item: any }) => (
         <TouchableOpacity style={styles.locationItem} onPress={() => handleLocationSelect(item)}>
-            <Image source={item.image} style={styles.locationImage} />
+            <Image source={require('../../assets/images/logoNormal.png')} style={styles.locationImage} />
             <View style={styles.locationDetails}>
                 <Text style={styles.locationName}>{item.name}</Text>
                 <Text style={styles.locationAddress}>{item.address}</Text>
-                <Text style={styles.locationDistance}>{item.distance}</Text>
+                <Text style={styles.locationDistance}>Liên hệ: {item.phone}</Text>
             </View>
         </TouchableOpacity>
     );
 
     return (
         <View style={styles.container}>
-            {/* Header with Search Bar */}
             <View style={styles.header}>
                 <TextInput
                     style={styles.searchBar}
@@ -84,15 +62,22 @@ export default function PickupLocationScreen() {
                 />
             </View>
 
-            <FlatList
-                data={filteredLocations}
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={renderLocationItem}
-                contentContainerStyle={styles.listContainer}
-            />
+            {loading ? (
+                <Text style={{ textAlign: 'center', marginTop: 20 }}>Loading...</Text>
+            ) : error ? (
+                <Text style={{ color: 'red', textAlign: 'center' }}>{error}</Text>
+            ) : (
+                <FlatList
+                    data={filteredLocations}
+                    keyExtractor={(item) => item.userId.toString()}
+                    renderItem={renderLocationItem}
+                    contentContainerStyle={styles.listContainer}
+                />
+            )}
         </View>
     );
 }
+
 
 const styles = StyleSheet.create({
     container: {

@@ -1,3 +1,4 @@
+import { useCreateOrder } from '@/hooks/useCreateOder';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import React from 'react';
@@ -6,13 +7,23 @@ import { ActivityIndicator, Modal, StyleSheet, Text, TouchableOpacity, View } fr
 export default function ConfirmPaymentScreen() {
     const router = useRouter();
     const navigation = useNavigation();
-    const { oldPrice, discount, totalPrice } = useLocalSearchParams(); // Get total price from params
+    const { price, discount, totalPrice,buyerId,distributorId,paymentMethod,shippingAddress } = useLocalSearchParams(); // Get total price from params
     const [isLoading, setIsLoading] = React.useState(false);
 
+
+    const { createOrder, loading: creatingOrder } = useCreateOrder();
+    const getStringParam = (param: string | string[] | undefined | null): string | null =>
+        Array.isArray(param) ? param[0] : param ?? null;
     const handleBuyNow = () => {
         setIsLoading(true);
         setTimeout(() => {
             setIsLoading(false);
+            createOrder({
+                buyerId: buyerId? Number(buyerId) : 3, // Default to 3 if buyerId is not provided
+                distributorId: distributorId? Number(distributorId) : 1, // Default to 1 if distributorId is not provided
+                paymentMethod: getStringParam(paymentMethod) || 'Cash on Delivery', // Default to 'Cash on Delivery' if paymentMethod is not provided
+                shippingAddress: getStringParam(shippingAddress) || '123 Default St, City, Country', // Default address if not provided
+            });
             router.push('/PaymentSuccessfulScreen');
         }, 2000)
     };
@@ -32,7 +43,7 @@ export default function ConfirmPaymentScreen() {
                 <Text style={styles.sectionTitle}>PAYMENT DETAILS</Text>
                 <View style={styles.row}>
                     <Text style={styles.textGray}>Initial Money:</Text>
-                    <Text style={styles.textBold}>${oldPrice}</Text>
+                    <Text style={styles.textBold}>${price}</Text>
                 </View>
                 <View style={styles.row}>
                     <Text style={styles.textGray}>Money is reduced:</Text>

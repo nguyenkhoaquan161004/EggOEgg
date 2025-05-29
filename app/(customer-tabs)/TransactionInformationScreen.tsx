@@ -1,13 +1,33 @@
 import globalStyles from '@/assets/styles/GlobalStyle';
+import { useAuth } from '@/contexts/AuthContent';
+import useAccount from '@/hooks/useAccount';
+import useCart from '@/hooks/useCart';
+import useEggProducts from '@/hooks/useEggProducts';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-
 export default function TransactionInformationScreen() {
     const navigation = useNavigation();
     const router = useRouter();
-
+    const { userId } = useAuth();
+     const { cart, loading, error } = useCart(userId || 3);
+    const { products } = useEggProducts();
+    const [items, setItems] = useState<any[]>([]);
+    const { account } = useAccount(userId||3);
+    useEffect(() => {
+        if (cart && products) {
+            const merged = cart.items.map((item) => {
+                const product = products.find(p => p.eggId === item.eggId);
+                return {
+                    ...item,
+                    ...(product || {}),
+                    checked: true,
+                };
+            });
+            setItems(merged);
+        }
+    }, [cart, products]);
     const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
     const [selectedEndow, setSelectedEndow] = useState<{ id: number; name: string; percent: number } | null>(null);
     const { selectedLocation } = useLocalSearchParams() || {};
@@ -17,7 +37,6 @@ export default function TransactionInformationScreen() {
     )
 
     const { selectedItems, quantity } = useLocalSearchParams() || {};
-    const items = selectedItems ? JSON.parse(selectedItems as string) : [];
     const quantities = quantity ? JSON.parse(quantity as string) : [];
 
     const oldPrice = items.reduce((total, item, index) => {
@@ -26,8 +45,10 @@ export default function TransactionInformationScreen() {
     }, 0);
 
     const discount = selectedEndow ? (oldPrice * selectedEndow.percent) / 100 : 0;
-    const totalPrice = oldPrice - discount;
-
+    const totalPrice = items.reduce(
+        (total, item) => total + (item.price ?? 0) * (item.quantity ?? 0),
+        0
+      )
     return (
         <View style={{ flex: 1, backgroundColor: '#F4F4F4' }}>
             {/* Header */}
@@ -43,7 +64,7 @@ export default function TransactionInformationScreen() {
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>CONTACT INFORMATION</Text>
                     <View style={styles.row}>
-                        <Text style={styles.textBold}>Nguyen Khoa Quan - 0939196936</Text>
+                        <Text style={styles.textBold}>{account?.name} - { account?.phone}</Text>
                         <TouchableOpacity>
                             <Text style={styles.linkText}>Change</Text>
                         </TouchableOpacity>
@@ -82,19 +103,23 @@ export default function TransactionInformationScreen() {
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>ORDER INFORMATION</Text>
                     {items.map((item, index) => (
-                        <View key={item.id} style={styles.orderRow}>
+                             <View key={`${item.eggId}-${index}`} style={styles.orderRow}>
                             <Image
-                                source={item.image}
+                                source={
+                                    item.imageURL && typeof item.imageURL === 'string'
+                                        ? { uri: item.imageURL }
+                                        : require('../../assets/images/logoNormal.png') 
+                                }
                                 style={styles.productImage}
                             />
-                            <View style={{ flex: 1, marginLeft: 10 }}>
+                                                        <View style={{ flex: 1, marginLeft: 10 }}>
                                 <Text style={styles.textBold}>{item.name}</Text>
                                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                     <Text style={styles.textPrice}>${item.price}</Text>
-                                    <Text style={styles.textOldPrice}>${item.oldPrice}</Text>
+                                    <Text style={styles.textOldPrice}>${item.price*2}</Text>
                                 </View>
                             </View>
-                            <Text style={styles.textGray}>Quantity: {quantities[index] || 0}</Text>
+                            <Text style={styles.textGray}>Quantity: {item.quantity}</Text>
                         </View>
                     ))}
                 </View>
@@ -147,10 +172,14 @@ export default function TransactionInformationScreen() {
                         router.push({
                             pathname: '/ConfirmPaymentScreen',
                             params: {
-                                oldPrice: oldPrice.toFixed(2),
-                                discount: discount.toFixed(2),
-                                totalPrice: totalPrice.toFixed(2)
-                            }, // Pass total price as a parameter
+                                price: String(totalPrice.toFixed(2)),
+                                discount: String(discount.toFixed(2)),
+                                totalPrice: String(totalPrice.toFixed(2)),
+                                buyerId: String(userId || 3),
+                                distributorId: String(pickupLocation.userId),
+                                paymentMethod: selectedPaymentMethod ?? 'Cash on Delivery',
+                                shippingAddress: account?.address ?? '123 Default St, City, Country',
+                              } // Pass total price as a parameter
                         })
                     }>
                     <Text style={styles.buyNowText}>Buy now</Text>
@@ -360,3 +389,4 @@ export function SelectPaymentMethod({ onSelect }: { onSelect: (method: string) =
         </View>
     );
 }
+

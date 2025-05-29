@@ -10,4 +10,14 @@ export interface Account {
     complaints: any[];
     ratings: any[];
 }
-export type Role = 'Admin' | 'Buyer' | 'Distributer' | 'Seller' ; 
+export type Role = 'Admin' | 'Buyer' | 'Distributor' | 'Seller'; 
+
+export interface AuthResponse {
+    userId: number;
+    email: string;
+    name: string;
+    role: Role;
+    phone: string;
+    address: string;
+    token: string;
+}

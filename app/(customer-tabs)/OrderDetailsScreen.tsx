@@ -6,7 +6,6 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 export default function OrderDetailsScreen() {
     const { order } = useLocalSearchParams(); // Get the order details from the route parameters
     const router = useRouter();
-
     const parsedOrder = JSON.parse(order as string); // Parse the order details
 
     return (
@@ -23,7 +22,7 @@ export default function OrderDetailsScreen() {
             <ScrollView
                 contentContainerStyle={{ paddingBottom: 100 }}
                 style={styles.section}>
-                <OrderCard order={parsedOrder} />
+                <OrderCard order={parsedOrder} role="Buyer"  />
             </ScrollView>
         </View>
     );
@@ -58,3 +57,7 @@ const styles = StyleSheet.create({
         color: '#fff',
     },
 });
+
+function useAuth(): { role: any; } {
+    throw new Error('Function not implemented.');
+}

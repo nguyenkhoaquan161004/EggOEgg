@@ -1,61 +1,57 @@
+import useAccount from '@/hooks/useAccount';
+import { Order } from '@/types/Order';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-export default function OrderCard({ order }) {
+export default function OrderCard({ order, role }: { order: Order; role: string; }) {
     const router = useRouter();
-
+    const { account, loading } = useAccount(order.buyerId); // Fetch account details based on buyerId
+    if (loading) { };
+    // Assuming useAccount is a hook to fetch account details
     return (
         <View style={styles.container}>
-            {order.items.map((item, itemIndex) => (
+            {order.orderDetails.map((item, itemIndex) => (
                 <View key={itemIndex} style={styles.orderRow}>
-                    <Image source={item.image} style={styles.productImage} />
+                    <Image source={{ uri: item.eggImageURL }} style={styles.productImage} />
                     <View style={{ flex: 1, marginLeft: 10 }}>
-                        <Text style={styles.textBold}>{item.name}</Text>
+                        <Text style={styles.textBold}>{item.eggName}</Text>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            <Text style={styles.textPrice}>${item.price}</Text>
-                            <Text style={styles.textOldPrice}>${item.oldPrice}</Text>
+                            <Text style={styles.textPrice}>${item.unitPrice}</Text>
+                            <Text style={styles.textOldPrice}>${item.unitPrice * 2}</Text>
                         </View>
                         <Text style={styles.textGray}>Quantity: {item.quantity}</Text>
-                        {order.otherItemsCount > 0 && itemIndex === 0 && (
-                            <Text style={styles.textGray}>And {order.otherItemsCount} other items</Text>
+                        {order.orderDetails.length - 1 > 0 && itemIndex === 0 && (
+                            <Text style={styles.textGray}>And {order.orderDetails.length - 1} other items</Text>
                         )}
                     </View>
                 </View>
             ))}
-            {(order.status === 'DIS-DELIVERED' && order.customer) || (order.status === 'RETURNED' && order.customer) ? (
+
+            {(order.status === 'DISDELIVERED' && role === "Buyer") || (order.status === 'SHIPPING' && role === "Buyer") ? (
                 <>
                     <View style={styles.customerInfo}>
                         <Text style={styles.customerTitle}>Customer Information</Text>
-                        <Text style={styles.textGray}>Name: {order.customer.name}</Text>
-                        <Text style={styles.textGray}>Phone: {order.customer.phone}</Text>
-                        <Text style={styles.textGray}>Address: {order.customer.address}</Text>
+                        <Text style={styles.textGray}>Name: {account?.name||""}</Text>
+                        <Text style={styles.textGray}>Phone: {account?.phone}</Text>
+                        <Text style={styles.textGray}>Address: {account?.address}</Text>
                     </View>
-
-                    {order.status === 'RETURNED' && (
-                        <View style={styles.orderDetails} >
-                            <Text style={styles.textGray}>Type: {order.type}</Text>
-                            <Text style={styles.textGray}>Reasons: {order.reason}</Text>
-                            <Text style={styles.textGray}>Payment method: {order.paymentMethod}</Text>
-                        </View>
-                    )}
+ 
                 </>
             ) : (
-
-                <View style={styles.orderDetails} >
-                    <Text style={styles.textGray}>Payment time: {order.paymentTime}</Text>
-                    <Text style={styles.textGray}>Payment method: {order.paymentMethod}</Text>
-                    <Text style={styles.textGray}>Total: ${order.total.toFixed(2)}</Text>
+                <View style={styles.orderDetails}>
+                    <Text style={styles.textGray}>Payment time: {order.payment.paymentDate}</Text>
+                    <Text style={styles.textGray}>Payment method: {order.payment.method}</Text>
+                    <Text style={styles.textGray}>Total: ${order.payment.amount}</Text>
                 </View>
-
             )}
 
             <View style={styles.actionButtons}>
-                {order.status === 'DIS-DELIVERED' ? (
+                {order.status === 'DISDELIVERED' ||order.status === 'SHIPPING'? (
                     <TouchableOpacity style={[styles.actionButton, styles.reviewButton]}>
                         <Text style={[styles.actionButtonText, { color: '#006D5B' }]}>Complete</Text>
                     </TouchableOpacity>
-                ) : (order.status === 'RETURNED' ? (
+                ) : (order.status === 'RETURN' ? (
                     <TouchableOpacity style={[styles.actionButton, styles.reviewButton]}>
                         <Text style={[styles.actionButtonText, { color: '#006D5B' }]}>Send back to Seller</Text>
                     </TouchableOpacity>
@@ -84,9 +80,10 @@ export default function OrderCard({ order }) {
                 )
                 )}
             </View>
-        </View >
+        </View>
     );
 }
+
 
 const styles = StyleSheet.create({
     container: {
