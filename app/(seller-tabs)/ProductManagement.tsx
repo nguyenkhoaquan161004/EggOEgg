@@ -1,37 +1,37 @@
 import globalStyles from '@/assets/styles/GlobalStyle';
+import useEggProducts from '@/hooks/useEggProducts';
+import useStore from '@/hooks/useStore';
+import { Product } from '@/types/Product';
+import { uploadImageToCloudinary } from '@/utils/cloudinary';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Dimensions, Image, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-
-const PRODUCT_IMAGE = require('../../assets/images/logoNormal.png'); // Thay bằng ảnh sản phẩm thực tế
-
-const mockProducts = Array(24).fill({
-    id: 'egg123',
-    name: 'Egg Product',
-    price: 0.89,
-    oldPrice: 1.09,
-    unit: '6 eggs',
-    sold: 234,
-    image: PRODUCT_IMAGE,
-});
+const PRODUCT_IMAGE = require('../../assets/images/logoNormal.png');
 
 const ProductManagement = () => {
     const router = useRouter();
+    const { store, loading, error,refetchStore } = useStore(2); 
+    const { products, addProduct, updateProduct, deleteProduct } = useEggProducts();
 
+    // All hooks must be called before any return!
     const [searchText, setSearchText] = useState('');
     const [selectedProducts, setSelectedProducts] = useState<number[]>([]);
     const [selectAll, setSelectAll] = useState(false);
-
     const [showProductModal, setShowProductModal] = useState(false);
-    const [editingProduct, setEditingProduct] = useState<any>(null);
+    const [editingProduct, setEditingProduct] = useState<Product | null>(null);
     const [productForm, setProductForm] = useState({
         name: '',
         price: '',
         description: '',
-        images: [PRODUCT_IMAGE, PRODUCT_IMAGE, PRODUCT_IMAGE], // mock images
+        images: [PRODUCT_IMAGE, PRODUCT_IMAGE, PRODUCT_IMAGE],
+        stockQuantity: 0, 
     });
+
+    if (loading) return <Text>Loading...</Text>;
+    if (error) return <Text>Error loading store</Text>;
+
 
 
     const handleCheckProduct = (idx: number) => {
@@ -47,30 +47,36 @@ const ProductManagement = () => {
             setSelectedProducts([]);
             setSelectAll(false);
         } else {
-            setSelectedProducts(Array.from({ length: mockProducts.length }, (_, i) => i));
+            setSelectedProducts(Array.from({ length:store?.eggs.length??0 }, (_, i) => i));
             setSelectAll(true);
         }
     };
 
     // Lọc sản phẩm theo search
-    const filteredProducts = mockProducts.filter(
+    const filteredProducts = store?.eggs.filter(
         p => p.name.toLowerCase().includes(searchText.toLowerCase())
-    );
+    ) || [];
 
     const pickImage = async (imgIdx: number) => {
         let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            aspect: [4, 3],
-            quality: 1,
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: true,
+          aspect: [4, 3],
+          quality: 1,
         });
-
-        if (!result.canceled && result.assets && result.assets.length > 0) {
+      
+        if (!result.canceled && result.assets?.length > 0) {
+          const localUri = result.assets[0].uri;
+      
+          const cloudinaryUrl = await uploadImageToCloudinary(localUri);
+      
+          if (cloudinaryUrl) {
             const newImages = [...productForm.images];
-            newImages[imgIdx] = { uri: result.assets[0].uri };
+            newImages[imgIdx] = { uri: cloudinaryUrl }; // Cloudinary URL
             setProductForm({ ...productForm, images: newImages });
+          }
         }
-    };
+      };
 
     const openAddModal = () => {
         setEditingProduct(null);
@@ -79,21 +85,58 @@ const ProductManagement = () => {
             price: '',
             description: '',
             images: [PRODUCT_IMAGE, PRODUCT_IMAGE, PRODUCT_IMAGE], // mock images
+            stockQuantity: 0, // mock stock quantity
         })
         setShowProductModal(true);
     }
 
+
     const openEditModal = (idx: number) => {
         const prod = filteredProducts[idx];
-        setEditingProduct(idx);
+        if (!prod) {
+            return;
+        }
+        setEditingProduct(prod);
         setProductForm({
             name: prod.name,
             price: prod.price.toString(),
             description: prod.description || '',
-            images: [prod.image, prod.image, prod.image], // mock
+            images: [prod.imageURL, prod.imageURL, prod.imageURL], // mock
+            stockQuantity: prod.stockQuantity || 0, // mock stock quantity
         });
         setShowProductModal(true);
     };
+
+    const handleAddOrUpdate = () => { 
+        if (editingProduct) {
+            const updatedProduct = {
+                name: productForm.name,
+                price: parseFloat(productForm.price),
+                description: productForm.description,
+                imageURL: productForm.images[0].uri, // Assuming first image is the main one
+                stockQuantity: productForm.stockQuantity, // Update stock quantity
+                eggId: editingProduct.eggId, // Keep the same eggId for update
+                storeId: store?.storeId || 2, // Use store ID from context
+                soldCount: editingProduct.soldCount, // Keep the same sold count
+            };
+            updateProduct(editingProduct.eggId, updatedProduct);
+        } else {
+            // Add new product
+            const newProduct = {
+                name: productForm.name,
+                price: parseFloat(productForm.price),
+                description: productForm.description,
+                imageURL: productForm.images[0].uri, // Assuming first image is the main one
+                storeId: store?.storeId || 2, // Use store ID from context
+                soldCount: 0, // Default value
+                stockQuantity: productForm.stockQuantity, // Use stock quantity from form
+            };
+            addProduct(newProduct);
+        }
+        setShowProductModal(false);
+        refetchStore(); // Refresh store data after adding/updating product
+        
+    }
 
     return (
         <View style={styles.bg}>
@@ -113,11 +156,11 @@ const ProductManagement = () => {
             <View style={styles.storeInfoWrapper}>
                 <Image source={PRODUCT_IMAGE} style={styles.storeAvatar} />
                 <View style={{ flex: 1 }}>
-                    <Text style={styles.storeTitle}>EggOEgg store’s name</Text>
+                    <Text style={styles.storeTitle}>{store?.storeName}</Text>
                     <Text style={styles.storeDesc}>
-                        Your trusted source for clean, high-quality chicken and duck eggs. Fast delivery, farm-fresh quality – because your family’s health comes first!
+                       {store?.description || 'No description available.'}
                     </Text>
-                    <Text style={styles.storeCount}>92 products</Text>
+                    <Text style={styles.storeCount}>{store?.eggCount} products</Text>
                 </View>
                 <TouchableOpacity style={styles.editProfileBtn}>
                     <Text style={styles.editProfileText}>Edit store's profile</Text>
@@ -143,13 +186,20 @@ const ProductManagement = () => {
                         <TouchableOpacity
                             style={[styles.actionBtn, { backgroundColor: selectedProducts.length > 0 ? '#034C53' : '#bbb' }]}
                             disabled={selectedProducts.length === 0}
-                        >
+                            onPress={() => {
+                                selectedProducts.forEach(idx => deleteProduct(filteredProducts[idx].eggId));
+                                setSelectedProducts([]);
+                                refetchStore();
+
+                            }
+                            }>
                             <Text style={styles.actionBtnText}>DELETE</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={[styles.actionBtn, { backgroundColor: selectedProducts.length === 1 ? '#034C53' : '#bbb' }]}
                             disabled={selectedProducts.length !== 1}
-                            onPress={() => openEditModal(selectedProducts[0])}
+                            onPress={() => openEditModal(selectedProducts[0])
+                            }
                         >
                             <Text style={styles.actionBtnText}>EDIT</Text>
                         </TouchableOpacity>
@@ -170,15 +220,15 @@ const ProductManagement = () => {
                         onPress={() => handleCheckProduct(idx)}
                         activeOpacity={0.8}
                     >
-                        <Image source={product.image} style={styles.productImage} />
+                        <Image source={{uri:product.imageURL}} style={styles.productImage} />
 
                         <Text style={[globalStyles.p2Medium, styles.productName]} numberOfLines={1}>{product.name}</Text>
                         <View style={{ width: '100%', flexDirection: 'row', alignItems: 'center', marginTop: 2, justifyContent: 'space-between' }}>
                             <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 2, }}>
                                 <Text style={styles.productPrice}>${product.price.toFixed(2)}</Text>
-                                <Text style={styles.productOldPrice}>${product.oldPrice.toFixed(2)}</Text>
+                                <Text style={styles.productOldPrice}>${product.price.toFixed(2)}</Text>
                             </View>
-                            <Text style={styles.productSold}>Sold: {product.sold}</Text>
+                            <Text style={styles.productSold}>Sold: {product.soldCount}</Text>
                         </View>
                     </TouchableOpacity>
                 ))}
@@ -206,7 +256,7 @@ const ProductManagement = () => {
                         <Text style={modalStyles.label}>Product’s name</Text>
                         <TextInput
                             style={modalStyles.input}
-                            placeholder="Your store's name"
+                            placeholder="Your product's name"
                             value={productForm.name}
                             onChangeText={text => setProductForm({ ...productForm, name: text })}
                         />
@@ -221,19 +271,27 @@ const ProductManagement = () => {
                         <Text style={modalStyles.label}>Product’s description</Text>
                         <TextInput
                             style={[modalStyles.input, { height: 100 }]}
-                            placeholder="Your store's description"
+                            placeholder="Your product's description"
                             value={productForm.description}
                             multiline
                             onChangeText={text => setProductForm({ ...productForm, description: text })}
                         />
+                         <Text style={modalStyles.label}>Product’s stock quantity</Text>
+                        <TextInput
+                            style={[modalStyles.input, { height: 100 }]}
+                            placeholder="Your product's stock quantity"
+                            value={productForm.stockQuantity.toString()}
+                            multiline
+                            onChangeText={text => setProductForm({ ...productForm,  stockQuantity: parseInt(text) || 0 })} // Ensure it's a number
+                        />
                         <TouchableOpacity
                             style={modalStyles.createBtn}
-                            onPress={() => {
-                                // handle add/edit here
+                            onPress={() => {    
+                                handleAddOrUpdate();
                                 setShowProductModal(false);
                             }}
                         >
-                            <Text style={modalStyles.createBtnText}>{editingProduct === null ? 'Create store' : 'Save changes'}</Text>
+                            <Text style={modalStyles.createBtnText}>{editingProduct === null ? 'Create product' : 'Save changes'}</Text>
                         </TouchableOpacity>
                     </View>
                 </View>

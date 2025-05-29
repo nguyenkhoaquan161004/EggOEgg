@@ -1,20 +1,38 @@
+import axios from 'axios';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-
+import Config from '../../constants';
+import { useAuth } from '../../contexts/AuthContent';
 const W_LoginScreen = () => {
     const router = useRouter();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-
-    const handleLogin = () => {
-        if (username === 'admin123' && password === '123456') {
-            router.push('/(admin-tabs)/UserManagement')
-        } else {
-            router.push('/(seller-tabs)/ProductManagement')
-        }
+    const { setIsLoggedIn, setUserId, setRole } = useAuth();
+    const handleLogin = async () => {
+        try {
+            const response = await axios.post(`${Config.API_BASE_URL}/api/Auth/login`, {
+                email:username,
+              password
+            });
+            if (response.status === 200) {
+                setIsLoggedIn(true);
+                setUserId(response.data.userId);
+                setRole(response.data.role);
+                
+                if (response.data.role=== 'Admin') {
+                    router.push('/(admin-tabs)/UserManagement')
+                } else if (response.data.role === 'Seller') {
+                    router.push('/(seller-tabs)/ProductManagement')
+                }
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            alert('Invalid credentials. Please try again.');
+          }
     }
-
+    
+   
     return (
         <View style={styles.bg}>
             {/* Header */}
@@ -352,3 +370,4 @@ const styles = StyleSheet.create({
 });
 
 export default W_LoginScreen;
+

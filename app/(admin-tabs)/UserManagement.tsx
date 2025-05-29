@@ -1,20 +1,24 @@
+import useAccounts from '@/hooks/useAccounts';
+import { Account } from '@/types/Account';
+import { Picker } from '@react-native-picker/picker';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Role } from '../../types/Account';
 
-const userDatas = Array(50).fill({
-    id: 'asdfexcv12ds',
-    fullName: 'Nguyen Khoa Quan',
-    numbers: '0xx.xxx.xxx',
-    email: 'khoaquan@gmail.com',
-    position: 'Distributor',
-    address: 'HoChiMinh City',
-    dateCreate: '05/05/2025',
-    note: 'Note',
-});
+// const userDatas = Array(50).fill({
+//     id: 'asdfexcv12ds',
+//     fullName: 'Nguyen Khoa Quan',
+//     numbers: '0xx.xxx.xxx',
+//     email: 'khoaquan@gmail.com',
+//     position: 'Distributor',
+//     address: 'HoChiMinh City',
+//     dateCreate: '05/05/2025',
+//     note: 'Note',
+// });
 
 const columns = [
-    '#', 'ID', 'Full name', 'Numbers', 'Email', 'Position', 'Address', 'Date create', 'Note'
+    '#', 'ID', 'Full name', 'Numbers', 'Email', 'Position', 'Address'
 ];
 
 const UserManagement = () => {
@@ -23,31 +27,35 @@ const UserManagement = () => {
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [searchText, setSearchText] = useState('');
-    const [newUser, setNewUser] = useState({
-        id: '',
-        fullName: '',
-        numbers: '',
+    const [newUser, setNewUser] = useState<Account>({
+        userId: 0,
+        name: '',
+        phone: '',
         email: '',
-        position: '',
+        role: 'Buyer',
         address: '',
-        dateCreate: '',
-        note: '',
-    });
+        orders: [],
+        complaints: [],
+        ratings: [],
+      });
+      
     const [selectedRows, setSelectedRows] = useState<number[]>([]);
     const [selectAll, setSelectAll] = useState(false);
 
-    const [editUser, setEditUser] = useState({
-        id: '',
-        fullName: '',
-        numbers: '',
+    const [editUser, setEditUser] = useState<Account>({
+        userId: 0,
+        name: '',
+        phone: '',
         email: '',
-        position: '',
+        role: 'Buyer',
         address: '',
-        dateCreate: '',
-        note: '',
+        orders: [],
+        complaints: [],
+        ratings: [],
     });
+    const { accounts,loading,error} = useAccounts();
     const [editIndex, setEditIndex] = useState<number | null>(null);
-    const [rows, setRows] = useState(userDatas);
+    const [rows, setRows] = useState(accounts);
 
     const handleCheckRow = (index: number) => {
         if (selectedRows.includes(index)) {
@@ -70,16 +78,16 @@ const UserManagement = () => {
     const handleAddUser = () => {
         setRows([...rows, newUser]);
         setShowAddModal(false);
-        setNewUser({
-            id: '',
-            fullName: '',
-            numbers: '',
+        setNewUser({userId: 0,
+            name: '',
+            phone: '',
             email: '',
-            position: '',
+            role: 'Buyer', 
             address: '',
-            dateCreate: '',
-            note: '',
-        });
+            orders: [],
+            complaints: [],
+            ratings: [],}
+        );
     }
 
     const handleDelete = () => {
@@ -112,18 +120,17 @@ const UserManagement = () => {
     const handleSearch = (text: string) => {
         setSearchText(text);
         if (text.length > 0) {
-            const filteredRows = userDatas.filter((user) =>
-                user.fullName.toLowerCase().includes(text.toLowerCase()) ||
-                user.numbers.toLowerCase().includes(text.toLowerCase()) ||
+            const filteredRows = accounts.filter((user) =>
+                user.name.toLowerCase().includes(text.toLowerCase()) ||
+                user.phone.toLowerCase().includes(text.toLowerCase()) ||
                 user.email.toLowerCase().includes(text.toLowerCase()) ||
-                user.position.toLowerCase().includes(text.toLowerCase()) ||
-                user.address.toLowerCase().includes(text.toLowerCase()) ||
-                user.note.toLowerCase().includes(text.toLowerCase())
+                user.role.toLowerCase().includes(text.toLowerCase()) ||
+                user.address.toLowerCase().includes(text.toLowerCase())
             );
             setRows(filteredRows);
         }
         else {
-            setRows(userDatas);
+            setRows(accounts);
         }
     }
 
@@ -194,14 +201,13 @@ const UserManagement = () => {
                                     </View>
                                 </TouchableOpacity>
                                 <Text style={styles.cell}>{idx + 1}</Text>
-                                <Text style={styles.cell}>{row.id}</Text>
-                                <Text style={styles.cell}>{row.fullName}</Text>
-                                <Text style={styles.cell}>{row.numbers}</Text>
+                                <Text style={styles.cell}>{row.userId}</Text>
+                                <Text style={styles.cell}>{row.name}</Text>
+                                <Text style={styles.cell}>{row.phone}</Text>
                                 <Text style={styles.cell}>{row.email}</Text>
-                                <Text style={styles.cell}>{row.position}</Text>
+                                <Text style={styles.cell}>{row.role}</Text>
                                 <Text style={styles.cell}>{row.address}</Text>
-                                <Text style={styles.cell}>{row.dateCreate}</Text>
-                                <Text style={styles.cell}>{row.note}</Text>
+                                <Text style={styles.cell}>{row.email}</Text>
                             </View>
                         ))}
                     </ScrollView>
@@ -231,46 +237,48 @@ const UserManagement = () => {
                         <ScrollView>
                             <TextInput
                                 placeholder="Full Name"
-                                value={newUser.fullName}
-                                onChangeText={text => setNewUser({ ...newUser, fullName: text })}
+                                value={newUser?.name}
+                                onChangeText={text => setNewUser({ ...newUser, name: text })}
                                 style={styles.input}
                             />
                             <TextInput
                                 placeholder="Numbers"
-                                value={newUser.numbers}
-                                onChangeText={text => setNewUser({ ...newUser, numbers: text })}
+                                value={newUser?.phone}
+                                onChangeText={text => setNewUser({ ...newUser, phone: text })}
                                 style={styles.input}
                             />
                             <TextInput
                                 placeholder="Email"
-                                value={newUser.email}
+                                value={newUser?.email}
                                 onChangeText={text => setNewUser({ ...newUser, email: text })}
+                                style={styles.input}/>
+                            <Picker
+                                selectedValue={newUser.role}
+                                onValueChange={value => setNewUser({ ...newUser, role: value as Role })}
                                 style={styles.input}
-                            />
-                            <TextInput
-                                placeholder="Position"
-                                value={newUser.position}
-                                onChangeText={text => setNewUser({ ...newUser, position: text })}
-                                style={styles.input}
-                            />
+                              >
+                                <Picker.Item label="Buyer" value="Buyer" />
+                                <Picker.Item label="Seller" value="Seller" />
+                                <Picker.Item label="Admin" value="Admin" />
+                              </Picker>
                             <TextInput
                                 placeholder="Address"
                                 value={newUser.address}
                                 onChangeText={text => setNewUser({ ...newUser, address: text })}
                                 style={styles.input}
                             />
-                            <TextInput
+                            {/* <TextInput
                                 placeholder="Date Create"
                                 value={newUser.dateCreate}
                                 onChangeText={text => setNewUser({ ...newUser, dateCreate: text })}
                                 style={styles.input}
-                            />
-                            <TextInput
+                            /> */}
+                            {/* <TextInput
                                 placeholder="Note"
                                 value={newUser.note}
                                 onChangeText={text => setNewUser({ ...newUser, note: text })}
                                 style={styles.input}
-                            />
+                            /> */}
                         </ScrollView>
                         <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 16 }}>
                             <TouchableOpacity onPress={() => setShowAddModal(false)} style={[styles.actionBtn, { backgroundColor: '#bbb', marginRight: 8 }]}>
@@ -305,13 +313,21 @@ const UserManagement = () => {
                     }}>
                         <Text style={{ fontWeight: 'bold', fontSize: 18, marginBottom: 12 }}>Edit User</Text>
                         <ScrollView>
-                            <TextInput placeholder="Full Name" value={editUser.fullName} onChangeText={text => setEditUser({ ...editUser, fullName: text })} style={styles.input} />
-                            <TextInput placeholder="Numbers" value={editUser.numbers} onChangeText={text => setEditUser({ ...editUser, numbers: text })} style={styles.input} />
+                            <TextInput placeholder="Full Name" value={editUser.name} onChangeText={text => setEditUser({ ...editUser, name: text })} style={styles.input} />
+                            <TextInput placeholder="Numbers" value={editUser.phone} onChangeText={text => setEditUser({ ...editUser, phone: text })} style={styles.input} />
                             <TextInput placeholder="Email" value={editUser.email} onChangeText={text => setEditUser({ ...editUser, email: text })} style={styles.input} />
-                            <TextInput placeholder="Position" value={editUser.position} onChangeText={text => setEditUser({ ...editUser, position: text })} style={styles.input} />
+                            <Picker
+                                selectedValue={newUser.role}
+                                onValueChange={value => setNewUser({ ...newUser, role: value as Role })}
+                                style={styles.input}
+                                >
+                                <Picker.Item label="Buyer" value="Buyer" />
+                                <Picker.Item label="Seller" value="Seller" />
+                                <Picker.Item label="Admin" value="Admin" />
+                            </Picker>
                             <TextInput placeholder="Address" value={editUser.address} onChangeText={text => setEditUser({ ...editUser, address: text })} style={styles.input} />
-                            <TextInput placeholder="Date Create" value={editUser.dateCreate} onChangeText={text => setEditUser({ ...editUser, dateCreate: text })} style={styles.input} />
-                            <TextInput placeholder="Note" value={editUser.note} onChangeText={text => setEditUser({ ...editUser, note: text })} style={styles.input} />
+                            {/* <TextInput placeholder="Date Create" value={editUser.dateCreate} onChangeText={text => setEditUser({ ...editUser, dateCreate: text })} style={styles.input} /> */}
+                            {/* <TextInput placeholder="Note" value={editUser.note} onChangeText={text => setEditUser({ ...editUser, note: text })} style={styles.input} /> */}
                         </ScrollView>
                         <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 16 }}>
                             <TouchableOpacity onPress={() => setShowEditModal(false)} style={[styles.actionBtn, { backgroundColor: '#bbb', marginRight: 8 }]}>
