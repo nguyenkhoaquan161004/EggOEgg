@@ -12,7 +12,7 @@ export default function useOrdersDistributor(distributorId: number) {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res = await axios.get(`${Config.API_BASE_URL}/api/Order/distributor-history/${distributorId}`);
+        const res = await axios.get(`${Config.API_BASE_URL}/api/Order/distributorId-history/${distributorId}`);
         setOrders(res.data);
       } catch (err) {
         setError(err);

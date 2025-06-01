@@ -30,7 +30,7 @@ export default function DistributorMainScreen() {
             title: 'Confirm orders',
             icon: 'receipt',
             badge: 12,
-            onPress: () => { router.push('/(distributor-tabs)/ConfirmOrdersScreen') },
+            onPress: () => { router.push( `${'/(distributor-tabs)'}/ConfirmOrdersScreen` ) },
         },
         {
             id: 3,
@@ -68,8 +68,7 @@ export default function DistributorMainScreen() {
         });
         if (!result.canceled) {
             const newImages = result.assets.map(asset => ({ uri: asset.uri }));
-            setPlaceImages([...placeImages, ...newImages]);
-        }
+            const [placeImages, setPlaceImages] = useState<{ uri: string }[]>([]);        }
     };
 
     const handleRemovePlaceImage = (index: any) => {
@@ -99,7 +98,7 @@ export default function DistributorMainScreen() {
                     >
                         <View style={styles.menuItemLeft}>
                             <MaterialIcons
-                                name={item.icon}
+                                name={item.icon as any}
                                 size={20}
                                 color={item.isLogout ? '#C22727' : '#006D5B'}
                             />

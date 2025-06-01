@@ -5,7 +5,7 @@ import React from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { useAuth } from '@/contexts/AuthContent';
-import useOrdersDistributor from '@/hooks/useOedrByDistributor';
+import useOrdersDistributor from '@/hooks/useOrderByDistributor';
 import useReturnRequestsByDistributor from '@/hooks/useReturnRequestByDistributor';
 // const data = [
 //     {

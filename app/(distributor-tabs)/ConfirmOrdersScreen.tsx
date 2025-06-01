@@ -1,14 +1,15 @@
-import OrderCard from '@/components/OrderCard'; // Đường dẫn này tùy vào vị trí file OrderCard của bạn
+import OrderCard from '@/components/OrderCard';
 import {
     useAuth
 } from '@/contexts/AuthContent';
-import useOrdersDistributor from '@/hooks/useOedrByDistributor';
+import useOrdersDistributor from '@/hooks/useOrderByDistributor';
 import { Order, OrderStatus } from '@/types/Order';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 // const orders = Array.from({ length: 8 }).map((_, i) => ({
+
 //     id: i + 1,
 //     status: 'DIS-DELIVERED',
 //     items: [
@@ -40,6 +41,7 @@ import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native
 //     paymentMethod: 'VNPay',
 //     total: 10.0,
 // }));
+export default function ConfirmOrdersScreen() {
 const {userId} = useAuth();
 const { orders, loading } = useOrdersDistributor(userId || 6);
   const groupedOrders = orders.reduce(
@@ -53,7 +55,7 @@ const { orders, loading } = useOrdersDistributor(userId || 6);
     {} as Record<OrderStatus, Order[]>
   );
 
-export default function ConfirmOrdersScreen() {
+
     const router = useRouter();
 
     return (
@@ -78,7 +80,7 @@ export default function ConfirmOrdersScreen() {
                             pathname: `/(customer-tabs)/OrderDetailsScreen`,
                             params: { order: JSON.stringify(item) },
                         })}>
-                        <OrderCard order={{ ...item, orderDetails: [item.orderDetails[0]] }} role="Buyer"/>
+                        <OrderCard order={{ ...item, orderDetails: [item.orderDetails[0]] }} role="Distributor"/>
                     </TouchableOpacity>
                 )}
                 ItemSeparatorComponent={() => <View style={styles.separator} />}
