@@ -1,4 +1,6 @@
 import OrderCard from '@/components/OrderCard';
+import { useAuth } from '@/contexts/AuthContent';
+import { Order } from '@/types/Order';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -8,10 +10,12 @@ export default function OrdersByStatusScreen() {
 
 
     const router = useRouter();
-
+    const { userId,role } = useAuth(); // Assuming you have a useAuth hook to get the userId
     const parsedOrders = orders ? JSON.parse(orders as string) : [];
-    const filteredOrders = parsedOrders.sort((a, b) => new Date(b.paymentTime).getTime() - new Date(a.paymentTime).getTime())
-
+    const filteredOrders = parsedOrders.sort(
+        (a: Order, b: Order) =>
+          new Date(b.payment.paymentDate).getTime() - new Date(a.payment.paymentDate).getTime()
+      );
     return (
         <View style={styles.container}>
             {/* Header with Back Button */}
@@ -29,17 +33,14 @@ export default function OrdersByStatusScreen() {
                         flexDirection: 'column',
                         gap: 20,
                     }}>
-                        {filteredOrders.map((order, index) => (
+                        {filteredOrders.map((order: Order, index: number) => (
                             <TouchableOpacity key={index}
                                 onPress={() => router.push({
                                     pathname: `/OrderDetailsScreen`,
                                     params: { order: JSON.stringify(order) },
                                 })}>
 
-                                <OrderCard order={{
-                                    ...order,
-                                    items: [order.items[0]],
-                                }} />
+                                <OrderCard order={order} role={role||'Buyer'} />
                             </TouchableOpacity>
                         ))}
                     </View>

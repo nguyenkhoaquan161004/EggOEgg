@@ -1,5 +1,5 @@
 // constants.js
-const DEV = 'http://192.168.35.41:5241'; 
+const DEV = 'http://192.168.1.115:5241'; 
 const PROD = 'https://api.supplyeggs.com';
 
 const API_BASE_URL = __DEV__ ? DEV : PROD;
