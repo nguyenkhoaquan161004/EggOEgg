@@ -2,33 +2,43 @@ import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-const mockExchanges = Array(4).fill({
-    id: 'afdfg23dw',
-    orderDate: '12/24/2025',
-    status: 'Processing',
-    type: 'Exchange',
-    customer: {
-        name: 'NGUYEN KHOA QUAN',
-        phone: '0XXX-XXX-XXX',
-    },
-    reasons: '3 on 10 were broken',
-    description: 'During transportation, 3 out of the 10 eggs in my order were broken. The product no longer meets the promised quantity and quality. I would like to request a replacement to ensure my consumer rights and product satisfaction.',
-    payment: 'PNPay',
-    products: [
-        { name: '10 of Chicken eggs 1 month left', quantity: 2 },
-        { name: '10 of Chicken eggs 1 month left', quantity: 2 },
-        { name: '10 of Chicken eggs 1 month left', quantity: 2 },
-        { name: '10 of Chicken eggs 1 month left', quantity: 2 },
-        { name: '10 of Chicken eggs 1 month left', quantity: 2 },
-    ],
-    total: 23.09,
-});
-
+// const mockExchanges = Array(4).fill({
+//     id: 'afdfg23dw',
+//     orderDate: '12/24/2025',
+//     status: 'Processing',
+//     type: 'Exchange',
+//     customer: {
+//         name: 'NGUYEN KHOA QUAN',
+//         phone: '0XXX-XXX-XXX',
+//     },
+//     reasons: '3 on 10 were broken',
+//     description: 'During transportation, 3 out of the 10 eggs in my order were broken. The product no longer meets the promised quantity and quality. I would like to request a replacement to ensure my consumer rights and product satisfaction.',
+//     payment: 'PNPay',
+//     products: [
+//         { name: '10 of Chicken eggs 1 month left', quantity: 2 },
+//         { name: '10 of Chicken eggs 1 month left', quantity: 2 },
+//         { name: '10 of Chicken eggs 1 month left', quantity: 2 },
+//         { name: '10 of Chicken eggs 1 month left', quantity: 2 },
+//         { name: '10 of Chicken eggs 1 month left', quantity: 2 },
+//     ],
+//     total: 23.09,
+// });
+import { useAuth } from '@/contexts/AuthContent';
+import useAccount from '@/hooks/useAccount';
+import useOrdersBySeller from '@/hooks/useOrdersBySeller';
+import useReturnRequestsBySeller from '@/hooks/useReturnRequestsBySeller';
 const HandleExchangeReturn = () => {
     const router = useRouter();
 
     const [isActiveIdx, setIsActiveIdx] = useState<number | null>(null);
-
+    const { userId } = useAuth();
+    const { returnRequests, loading, error } = useReturnRequestsBySeller(userId || 7);
+    const { orders, loading: ordersLoading, error: ordersError } = useOrdersBySeller(userId || 7);
+        const [distributorId, setDistributorId] = useState<number | null>(null);
+        const [buyerId, setBuyerId] = useState<number | null>(null);
+        const { account, loading: accountLoading } = useAccount(distributorId || 6);
+        const {account:cusAccount, loading: cusLoading} = useAccount(buyerId || 3);
+        
     return (
         <View style={styles.bg}>
             <View style={styles.header}>
@@ -42,67 +52,75 @@ const HandleExchangeReturn = () => {
             </View>
             <ScrollView style={styles.bg}>
                 <Text style={styles.title}>EXCHANGE/RETURN</Text>
-                {mockExchanges.map((item, idx) => (
-                    <TouchableOpacity
-                        key={idx}
-                        style={styles.card}
-                        onPress={() => setIsActiveIdx(idx === isActiveIdx ? null : idx)}>
-                        <View style={styles.row}>
-                            <View style={{ flex: 1, justifyContent: 'space-between' }}>
-                                <Text style={styles.label}><Text style={styles.bold}>ID:</Text> {item.id}</Text>
-                                <Text style={styles.label}><Text style={styles.bold}>Order date:</Text> {item.orderDate}</Text>
-                                <Text style={styles.label}><Text style={styles.bold}>Status:</Text> {item.status}</Text>
+                {returnRequests.map((item, idx) => {
+                    const foundOrder = orders.find(order => order.orderId === item.orderId);
 
-                            </View>
-                            <View style={{ flex: 1, justifyContent: 'space-between' }}>
-                                <Text style={styles.label}><Text style={styles.bold}>Customer Name:</Text> {item.customer.name}</Text>
-                                <Text style={styles.label}><Text style={styles.bold}>Phone Number:</Text> {item.customer.phone}</Text>
-                                <Text style={styles.label}><Text style={styles.bold}>Types:</Text> {item.type}</Text>
-
-                            </View>
-                            <View style={styles.btnGroup}>
-                                <TouchableOpacity style={styles.confirmBtn}>
-                                    <Text style={styles.confirmText}>Confirm</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity style={styles.refuseBtn}>
-                                    <Text style={styles.refuseText}>Refuse</Text>
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-                        {isActiveIdx === idx && (
-                            <View style={styles.productsRow}>
-                                <View style={{ flex: 1, gap: 4 }}>
-                                    <Text style={styles.label}><Text style={styles.bold}>Reasons:</Text> {item.reasons}</Text>
-                                    <Text style={styles.label}><Text style={styles.bold}>Description:</Text> {item.description}</Text>
-                                    <Text style={styles.label}><Text style={styles.bold}>Payment method:</Text> {item.payment}</Text>
-                                    <View style={{ flexDirection: 'row', gap: 40 }}>
-                                        <View style={{ width: '70%' }}>
-                                            <Text style={styles.bold}>Products:</Text>
-                                            {item.products.map((p, i) => (
-                                                <View key={i} style={styles.inforProducts}>
-                                                    <Text style={styles.productItem}>{p.name} </Text>
-                                                    <Text style={styles.productQty}>x{p.quantity}</Text>
-                                                </View>
-                                            ))}
-                                        </View>
-                                        <View style={styles.totalCol}>
-                                            <Text style={styles.bold}>Total price:</Text>
-                                            <Text style={styles.totalPrice}>${item.total.toFixed(2)}</Text>
-                                        </View>
-                                    </View>
+                    return (
+                        <TouchableOpacity
+                            key={idx}
+                            style={styles.card}
+                            onPress={() => {
+                                setIsActiveIdx(idx === isActiveIdx ? null : idx);
+                                setBuyerId(foundOrder?.buyerId || 3);
+                                setDistributorId(foundOrder?.distributorId || 6);
+                            }}
+                        >
+                            <View style={styles.row}>
+                                <View style={{ flex: 1, justifyContent: 'space-between' }}>
+                                    <Text style={styles.label}><Text style={styles.bold}>ID:</Text> {item.returnId}</Text>
+                                    <Text style={styles.label}><Text style={styles.bold}>Order date:</Text> {foundOrder?.orderDate}</Text>
+                                    <Text style={styles.label}><Text style={styles.bold}>Status:</Text> {item.status}</Text>
 
                                 </View>
-                            </View>
-                        )}
+                                <View style={{ flex: 1, justifyContent: 'space-between' }}>
+                                    <Text style={styles.label}><Text style={styles.bold}>Customer Name:</Text> {cusAccount?.name}</Text>
+                                    <Text style={styles.label}><Text style={styles.bold}>Phone Number:</Text> {cusAccount?.phone}</Text>
+                                    <Text style={styles.label}><Text style={styles.bold}>Types:</Text> {foundOrder?.status}</Text>
 
-                    </TouchableOpacity>
-                ))}
+                                </View>
+                                <View style={styles.btnGroup}>
+                                    <TouchableOpacity style={styles.confirmBtn}>
+                                        <Text style={styles.confirmText}>Confirm</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity style={styles.refuseBtn}>
+                                        <Text style={styles.refuseText}>Refuse</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                            {isActiveIdx === idx && (
+                                <View style={styles.productsRow}>
+                                    <View style={{ flex: 1, gap: 4 }}>
+                                        <Text style={styles.label}><Text style={styles.bold}>Reasons:</Text> {item.reason}</Text>
+                                        <Text style={styles.label}><Text style={styles.bold}>Description:</Text> During transportation, 3 out of the 10 eggs in my order were broken. The product no longer meets the promised quantity and quality. I would like to request a replacement to ensure my consumer rights and product satisfaction.</Text>
+                                        <Text style={styles.label}><Text style={styles.bold}>Payment method:</Text> {foundOrder?.payment.method}</Text>
+                                        <View style={{ flexDirection: 'row', gap: 40 }}>
+                                            <View style={{ width: '70%' }}>
+                                                <Text style={styles.bold}>Products:</Text>
+                                                {foundOrder?.orderDetails.map((p, i) => (
+                                                    <View key={i} style={styles.inforProducts}>
+                                                        <Text style={styles.productItem}>{p.eggName} </Text>
+                                                        <Text style={styles.productQty}>x{p.quantity}</Text>
+                                                    </View>
+                                                ))}
+                                            </View>
+                                            <View style={styles.totalCol}>
+                                                <Text style={styles.bold}>Total price:</Text>
+                                                <Text style={styles.totalPrice}>${foundOrder?.payment.amount.toFixed(2)}</Text>
+                                            </View>
+                                        </View>
+
+                                    </View>
+                                </View>
+                            )}
+
+                        </TouchableOpacity>
+                    );
+                })}
             </ScrollView>
         </View>
 
     );
 };
-
 const styles = StyleSheet.create({
     bg: {
         flex: 1,

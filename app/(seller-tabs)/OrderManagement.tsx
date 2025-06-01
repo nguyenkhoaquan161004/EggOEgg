@@ -1,34 +1,45 @@
+import { useAuth } from '@/contexts/AuthContent';
+import useAccount from '@/hooks/useAccount';
+import useOrdersBySeller from '@/hooks/useOrdersBySeller';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-
-const mockOrders = Array(6).fill({
-    id: 'afdfg23dw',
-    orderDate: '12/24/2025',
-    status: 'Processing',
-    distributor: {
-        name: 'NGUYEN KHOA QUAN',
-        phone: '0XXX-XXX-XXX',
-        address: 'ABC/DEF.AD street',
-    },
-    customer: {
-        name: 'NGUYEN KHOA QUAN',
-        phone: '0XXX-XXX-XXX',
-    },
-    products: [
-        { name: '10 of Chicken eggs 1 month left', quantity: 2 },
-        { name: '10 of Chicken eggs 1 month left', quantity: 2 },
-        { name: '10 of Chicken eggs 1 month left', quantity: 2 },
-        { name: '10 of Chicken eggs 1 month left', quantity: 2 },
-        { name: '10 of Chicken eggs 1 month left', quantity: 2 },
-        { name: '10 of Chicken eggs 1 month left', quantity: 2 },
-    ],
-    total: 23.09,
-});
+// const mockOrders = Array(6).fill({
+//     id: 'afdfg23dw',
+//     orderDate: '12/24/2025',
+//     status: 'Processing',
+//     distributor: {
+//         name: 'NGUYEN KHOA QUAN',
+//         phone: '0XXX-XXX-XXX',
+//         address: 'ABC/DEF.AD street',
+//     },
+//     customer: {
+//         name: 'NGUYEN KHOA QUAN',
+//         phone: '0XXX-XXX-XXX',
+//     },
+//     products: [
+//         { name: '10 of Chicken eggs 1 month left', quantity: 2 },
+//         { name: '10 of Chicken eggs 1 month left', quantity: 2 },
+//         { name: '10 of Chicken eggs 1 month left', quantity: 2 },
+//         { name: '10 of Chicken eggs 1 month left', quantity: 2 },
+//         { name: '10 of Chicken eggs 1 month left', quantity: 2 },
+//         { name: '10 of Chicken eggs 1 month left', quantity: 2 },
+//     ],
+//     total: 23.09,
+// });
 
 const OrderManagement = () => {
     const [isActiveIdx, setIsActiveIdx] = useState<number | null>(null);
     const router = useRouter();
+    const { userId } = useAuth();
+    const { orders, loading, error } = useOrdersBySeller(userId || 7);
+    const [distributorId, setDistributorId] = useState<number | null>(null);
+    const [buyerId, setBuyerId] = useState<number | null>(null);
+    const { account, loading: accountLoading } = useAccount(distributorId || 6);
+    const {account:cusAccount, loading: cusLoading} = useAccount(buyerId || 3);
+    
+    if (loading) return <Text>Loading...</Text>;
+    if (error) return <Text>Error loading orders: {error.message}</Text>;
 
     return (
         <View style={styles.bg}>
@@ -44,41 +55,45 @@ const OrderManagement = () => {
             </View>
             <ScrollView style={styles.bg}>
                 <Text style={styles.title}>YOUR ORDER</Text>
-                {mockOrders.map((order, idx) => (
+                {orders.map((order, idx) => (
                     <TouchableOpacity
                         key={idx}
                         style={styles.orderCard}
-                        onPress={() => setIsActiveIdx(idx === isActiveIdx ? null : idx)}>
+                        onPress={() => {
+                            setDistributorId(order.distributorId);
+                            setIsActiveIdx(idx === isActiveIdx ? null : idx);
+                            setBuyerId(order.buyerId);
+                          }}>
                         <View style={styles.row}>
                             <View style={{ flex: 1 }}>
-                                <Text style={styles.label}><Text style={styles.bold}>ID:</Text> {order.id}</Text>
+                                <Text style={styles.label}><Text style={styles.bold}>ID:</Text> {order.orderId}</Text>
                                 <Text style={styles.label}><Text style={styles.bold}>Order date:</Text> {order.orderDate}</Text>
                                 <Text style={styles.label}><Text style={styles.bold}>Status:</Text> {order.status}</Text>
                             </View>
                             <View style={{ flex: 1 }}>
-                                <Text style={styles.label}><Text style={styles.bold}>Distributor Name:</Text> {order.distributor.name}</Text>
-                                <Text style={styles.label}><Text style={styles.bold}>Phone Number:</Text> {order.distributor.phone}</Text>
-                                <Text style={styles.label}><Text style={styles.bold}>Address:</Text> {order.distributor.address}</Text>
+                                <Text style={styles.label}><Text style={styles.bold}>Distributor Name:</Text> {account?.name}</Text>
+                                <Text style={styles.label}><Text style={styles.bold}>Phone Number:</Text> {account?.phone}</Text>
+                                <Text style={styles.label}><Text style={styles.bold}>Address:</Text> {account?.address}</Text>
                             </View>
                             <View style={{ flex: 1 }}>
-                                <Text style={styles.label}><Text style={styles.bold}>Customer Name:</Text> {order.customer.name}</Text>
-                                <Text style={styles.label}><Text style={styles.bold}>Phone Number:</Text> {order.customer.phone}</Text>
+                                <Text style={styles.label}><Text style={styles.bold}>Customer Name:</Text> {cusAccount?.name}</Text>
+                                <Text style={styles.label}><Text style={styles.bold}>Phone Number:</Text> {cusAccount?.phone}</Text>
                             </View>
                         </View>
                         {isActiveIdx === idx && (
                             <View style={styles.productsRow}>
                                 <View style={{}}>
                                     <Text style={styles.bold}>Products:</Text>
-                                    {order.products.map((p, i) => (
+                                    {order.orderDetails.map((p, i) => (
                                         <View key={i} style={styles.inforProducts}>
-                                            <Text style={styles.productItem}>{p.name} </Text>
+                                            <Text style={styles.productItem}>{p.eggName} </Text>
                                             <Text style={styles.productQty}>x{p.quantity}</Text>
                                         </View>
                                     ))}
                                 </View>
                                 <View style={styles.totalCol}>
                                     <Text style={styles.bold}>Total price:</Text>
-                                    <Text style={styles.totalPrice}>${order.total.toFixed(2)}</Text>
+                                    <Text style={styles.totalPrice}>${order.payment.amount.toFixed(2)}</Text>
                                 </View>
                                 <TouchableOpacity style={{
                                     backgroundColor: '#176d6d',
