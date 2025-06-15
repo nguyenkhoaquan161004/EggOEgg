@@ -1,6 +1,5 @@
-// hooks/useOrdersBySeller.ts
 import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Config from '../constants';
 import { Order } from '../types/Order';
 
@@ -9,20 +8,24 @@ export default function useOrdersBySeller(sellerId: number) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<any>(null);
 
-  useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const res = await axios.get(`${Config.API_BASE_URL}/api/Order/seller-history/${sellerId}`);
-        setOrders(res.data);
-      } catch (err) {
-        setError(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (sellerId) fetchOrders();
+  const fetchOrders = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get(`${Config.API_BASE_URL}/api/Order/seller-history/${sellerId}`);
+      setOrders(res.data);
+      setError(null);
+    } catch (err) {
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
   }, [sellerId]);
 
-  return { orders, loading, error };
+  useEffect(() => {
+    if (sellerId) {
+      fetchOrders();
+    }
+  }, [sellerId, fetchOrders]);
+
+  return { orders, loading, error, refetch: fetchOrders };
 }

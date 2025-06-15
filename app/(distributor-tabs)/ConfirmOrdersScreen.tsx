@@ -43,7 +43,7 @@ import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native
 // }));
 export default function ConfirmOrdersScreen() {
 const {userId} = useAuth();
-const { orders, loading } = useOrdersDistributor(userId || 6);
+const { orders, loading,refetch } = useOrdersDistributor(userId || 6);
   const groupedOrders = orders.reduce(
     (acc: Record<OrderStatus, Order[]>, order) => {
       if (!acc[order.status]) {
@@ -80,7 +80,7 @@ const { orders, loading } = useOrdersDistributor(userId || 6);
                             pathname: `/(customer-tabs)/OrderDetailsScreen`,
                             params: { order: JSON.stringify(item) },
                         })}>
-                        <OrderCard order={{ ...item, orderDetails: [item.orderDetails[0]] }} role="Distributor"/>
+                        <OrderCard order={{ ...item, orderDetails: [item.orderDetails[0]] }} role="Distributor" onStatusUpdated={refetch}/>
                     </TouchableOpacity>
                 )}
                 ItemSeparatorComponent={() => <View style={styles.separator} />}

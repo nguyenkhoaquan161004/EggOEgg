@@ -5,7 +5,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Image, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { useAuth } from '../../contexts/AuthContent'; // <-- import context
+import { useAuth } from '../../contexts/AuthContent';
 
 export default function MyProfile() {
     const [isModalVisible, setIsModalVisible] = React.useState(false);

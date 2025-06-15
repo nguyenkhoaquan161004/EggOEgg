@@ -9,7 +9,7 @@ import React from 'react';
 
 export type RootStackParamList = {
     StartScreen: undefined;
-    LoginScrenn: undefined;
+    LoginScreen: undefined;
     SignUpScreen: undefined;
 };
 
@@ -24,7 +24,7 @@ const AppNavigator = () => (
                     headerShown: false,
                     ...TransitionPresets.SlideFromRightIOS,
                 }}>
-                <Stack.Screen name="LoginScrenn" component={LoginScreen} options={{ headerShown: false }} />
+                <Stack.Screen name="LoginScreen" component={LoginScreen} options={{ headerShown: false }} />
                 <Stack.Screen name="SignUpScreen" component={SignUpScreen} options={{ headerShown: false }} />
                 <Stack.Screen name='StartScreen' component={StartScreen}></Stack.Screen>
             </Stack.Navigator>

@@ -9,7 +9,7 @@ export default function useOrdersDistributor(distributorId: number) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<any>(null);
 
-  useEffect(() => {
+
     const fetchOrders = async () => {
       try {
         const res = await axios.get(`${Config.API_BASE_URL}/api/Order/distributorId-history/${distributorId}`);
@@ -21,8 +21,10 @@ export default function useOrdersDistributor(distributorId: number) {
       }
     };
 
+  if (distributorId) fetchOrders();
+  useEffect(() => {
     if (distributorId) fetchOrders();
   }, [distributorId]);
 
-  return { orders, loading, error };
+  return { orders, loading, error, refetch: fetchOrders};
 }

@@ -1,88 +1,144 @@
 import useAccount from '@/hooks/useAccount';
+import useUpdateOrderStatus from '@/hooks/useUpdateOrderStatus';
 import { Order } from '@/types/Order';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+export default function OrderCard({ order, role, onStatusUpdated }: { order: Order; role: string; onStatusUpdated?: () => void  }) {
+  const router = useRouter();
+  const isBuyer = role === 'Buyer';
+  const isDistributor = role === 'Distributor';
 
-export default function OrderCard({ order, role }: { order: Order; role: string; }) {
-    const router = useRouter();
-    const { account, loading } = useAccount(order.buyerId); // Fetch account details based on buyerId
-    if (loading) { };
-    // Assuming useAccount is a hook to fetch account details
-    return (
-        <View style={styles.container}>
-            {order.orderDetails.map((item, itemIndex) => (
-                <View key={itemIndex} style={styles.orderRow}>
-                    <Image source={{ uri: item.eggImageURL }} style={styles.productImage} />
-                    <View style={{ flex: 1, marginLeft: 10 }}>
-                        <Text style={styles.textBold}>{item.eggName}</Text>
-                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            <Text style={styles.textPrice}>${item.unitPrice}</Text>
-                            <Text style={styles.textOldPrice}>${item.unitPrice * 2}</Text>
-                        </View>
-                        <Text style={styles.textGray}>Quantity: {item.quantity}</Text>
-                        {order.orderDetails.length - 1 > 0 && itemIndex === 0 && (
-                            <Text style={styles.textGray}>And {order.orderDetails.length - 1} other items</Text>
-                        )}
-                    </View>
-                </View>
-            ))}
-
-            {(order.status === 'DISDELIVERED' && role === "Buyer") || (order.status === 'SHIPPING' && role === "Buyer") ? (
-                <>
-                    <View style={styles.customerInfo}>
-                        <Text style={styles.customerTitle}>Customer Information</Text>
-                        <Text style={styles.textGray}>Name: {account?.name||""}</Text>
-                        <Text style={styles.textGray}>Phone: {account?.phone}</Text>
-                        <Text style={styles.textGray}>Address: {account?.address}</Text>
-                    </View>
- 
-                </>
-            ) : (
-                <View style={styles.orderDetails}>
-                    <Text style={styles.textGray}>Payment time: {order.payment.paymentDate}</Text>
-                    <Text style={styles.textGray}>Payment method: {order.payment.method}</Text>
-                    <Text style={styles.textGray}>Total: ${order.payment.amount}</Text>
-                </View>
-            )}
-
-            <View style={styles.actionButtons}>
-                {order.status === 'DISDELIVERED' ||order.status === 'SHIPPING'? (
-                    <TouchableOpacity style={[styles.actionButton, styles.reviewButton]}>
-                        <Text style={[styles.actionButtonText, { color: '#006D5B' }]}>Complete</Text>
-                    </TouchableOpacity>
-                ) : (order.status === 'RETURN' ? (
-                    <TouchableOpacity style={[styles.actionButton, styles.reviewButton]}>
-                        <Text style={[styles.actionButtonText, { color: '#006D5B' }]}>Send back to Seller</Text>
-                    </TouchableOpacity>
-                ) : (
-                    <>
-                        <TouchableOpacity style={styles.actionButton}
-                            onPress={() =>
-                                router.push({
-                                    pathname: `/ExchangeAndReturnScreen`,
-                                    params: { order: JSON.stringify(order) },
-                                })
-                            }>
-                            <Text style={styles.actionButtonText}>Exchange/Return</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity style={[styles.actionButton, styles.reviewButton]}
-                            onPress={() =>
-                                router.push({
-                                    pathname: `/ReviewProductScreen`,
-                                    params: { order: JSON.stringify(order) },
-                                })
-                            }>
-                            <Text style={[styles.actionButtonText, { color: '#006D5B' }]}>Review</Text>
-                        </TouchableOpacity>
-                    </>
-                )
-                )}
+  // Buyer cần biết thông tin seller
+    // Distributor cần biết thông tin buyer
+    
+  const userIdToFetch = isBuyer ? order.distributorId : isDistributor ? order.buyerId : null;
+  const { account, loading } = useAccount(userIdToFetch ?? 0);
+    const { updateOrderStatus } = useUpdateOrderStatus();
+  const renderProductInfo = () => (
+    <>
+      {order.orderDetails.map((item, itemIndex) => (
+        <View key={itemIndex} style={styles.orderRow}>
+          <Image source={{ uri: item.eggImageURL }} style={styles.productImage} />
+          <View style={{ flex: 1, marginLeft: 10 }}>
+            <Text style={styles.textBold}>{item.eggName}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={styles.textPrice}>${item.unitPrice}</Text>
+              <Text style={styles.textOldPrice}>${item.unitPrice * 2}</Text>
             </View>
+            <Text style={styles.textGray}>Quantity: {item.quantity}</Text>
+            {order.orderDetails.length > 1 && itemIndex === 0 && (
+              <Text style={styles.textGray}>And {order.orderDetails.length - 1} other items</Text>
+            )}
+          </View>
         </View>
-    );
+      ))}
+    </>
+  );
+
+  const renderCustomerOrPartnerInfo = () => {
+    if (!account || loading) return null;
+
+    if ((isBuyer && order.status === 'ORDERED') || (isBuyer && order.status === 'ARRIVED_AT_DISTRIBUTOR') || isDistributor) {
+      return (
+        <View style={styles.customerInfo}>
+          <Text style={styles.customerTitle}>{isBuyer ? 'Seller Information' : 'Customer Information'}</Text>
+          <Text style={styles.textGray}>Name: {account.name}</Text>
+          <Text style={styles.textGray}>Phone: {account.phone}</Text>
+          <Text style={styles.textGray}>Address: {account.address}</Text>
+        </View>
+      );
+    }
+    return null;
+  };
+
+  const renderPaymentInfo = () => (
+    <View style={styles.orderDetails}>
+      <Text style={styles.textGray}>Payment time: {order.payment.paymentDate}</Text>
+      <Text style={styles.textGray}>Payment method: {order.payment.method}</Text>
+      <Text style={styles.textGray}>Total: ${order.payment.amount}</Text>
+    </View>
+  );
+
+  const renderActionButtons = () => {
+    // Case: Distributor -> đơn hàng đã đến
+    if (order.status === 'ARRIVED_AT_DISTRIBUTOR' && isDistributor) {
+      return (
+        <TouchableOpacity style={[styles.actionButton, styles.reviewButton]}
+        onPress={() => {
+          updateOrderStatus({ orderId: order.orderId, newStatus: 5 });
+          onStatusUpdated?.();
+        }}>
+          <Text style={[styles.actionButtonText, { color: '#006D5B' }]}>Complete</Text>
+        </TouchableOpacity>
+      );
+    }
+    // Case: Distributor -> đơn hàng đã đến
+    if (order.status === 'SELLER_CONFIRMED' && isDistributor) {
+        return (
+            <TouchableOpacity style={[styles.actionButton, styles.reviewButton]}
+    onPress={() =>{
+        updateOrderStatus({ orderId: order.orderId, newStatus: 4 });
+        onStatusUpdated?.();}}>
+          <Text style={[styles.actionButtonText, { color: '#006D5B' }]}>Confirm</Text>
+        </TouchableOpacity>
+      );
+    }
+
+    // Case: Seller nhận yêu cầu return
+    if (order.status === 'RETURN_REQUEST' && role === 'Distributor') {
+      return (
+        <TouchableOpacity style={[styles.actionButton, styles.reviewButton]}>
+          <Text style={[styles.actionButtonText, { color: '#006D5B' }]}>Send back to Buyer</Text>
+        </TouchableOpacity>
+      );
+    }
+
+
+    // Case: Buyer sau khi nhận hàng
+    if (isBuyer && order.status === 'RECEIVED_BY_BUYER') {
+      return (
+        <>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() =>
+              router.push({
+                pathname: `/ExchangeAndReturnScreen`,
+                params: { order: JSON.stringify(order) },
+              })
+            }
+          >
+            <Text style={styles.actionButtonText}>Exchange/Return</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.actionButton, styles.reviewButton]}
+            onPress={() =>
+              router.push({
+                pathname: `/ReviewProductScreen`,
+                params: { order: JSON.stringify(order) },
+              })
+            }
+          >
+            <Text style={[styles.actionButtonText, { color: '#006D5B' }]}>Review</Text>
+          </TouchableOpacity>
+        </>
+      );
+    }
+
+    return null;
+  };
+
+  return (
+    <View style={styles.container}>
+      {renderProductInfo()}
+      {renderCustomerOrPartnerInfo()}
+      {renderPaymentInfo()}
+      <View style={styles.actionButtons}>{renderActionButtons()}</View>
+    </View>
+  );
 }
+
 
 
 const styles = StyleSheet.create({

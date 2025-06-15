@@ -18,7 +18,7 @@ export default function ProductDetailScreen() {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [quantity, setQuantity] = useState(1);
     const [isBuyNow, setIsBuyNow] = useState(false);
-    const { store: storeData, loading: storeLoading } = useStore(product?.storeId || 3);
+    const { store: storeData, loading: storeLoading } = useStore(product?.storeId || 2);
     const {userId}=useAuth();
     const Router = useRouter();
     const { addToCart, error, success } = useAddToCart();

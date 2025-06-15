@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-const W_StartScreen = ({ navigation }) => {
+const W_StartScreen = () => {
     const router = useRouter();
 
     return (

@@ -1,4 +1,5 @@
 import OrderCard from '@/components/OrderCard';
+import { useAuth } from '@/contexts/AuthContent';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -7,7 +8,8 @@ export default function OrderDetailsScreen() {
     const { order } = useLocalSearchParams(); // Get the order details from the route parameters
     const router = useRouter();
     const parsedOrder = JSON.parse(order as string); // Parse the order details
-
+    const {role}= useAuth();
+ 
     return (
         <View style={styles.container}>
             {/* Header with Back Button */}
@@ -22,7 +24,7 @@ export default function OrderDetailsScreen() {
             <ScrollView
                 contentContainerStyle={{ paddingBottom: 100 }}
                 style={styles.section}>
-                <OrderCard order={parsedOrder} role="Buyer"  />
+                <OrderCard order={parsedOrder} role={role ||"Buyer"} />
             </ScrollView>
         </View>
     );
@@ -58,6 +60,3 @@ const styles = StyleSheet.create({
     },
 });
 
-function useAuth(): { role: any; } {
-    throw new Error('Function not implemented.');
-}

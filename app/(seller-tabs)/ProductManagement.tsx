@@ -13,7 +13,7 @@ const PRODUCT_IMAGE = require('../../assets/images/logoNormal.png');
 const ProductManagement = () => {
     const router = useRouter();
     const { store, loading, error,refetchStore } = useStore(2); 
-    const { products, addProduct, updateProduct, deleteProduct } = useEggProducts();
+    const { products, addProduct, updateProduct, deleteProduct, refetch } = useEggProducts();
 
     // All hooks must be called before any return!
     const [searchText, setSearchText] = useState('');
@@ -25,7 +25,7 @@ const ProductManagement = () => {
         name: '',
         price: '',
         description: '',
-        images: [PRODUCT_IMAGE, PRODUCT_IMAGE, PRODUCT_IMAGE],
+        imageURL: [PRODUCT_IMAGE, PRODUCT_IMAGE, PRODUCT_IMAGE],
         stockQuantity: 0, 
     });
 
@@ -41,7 +41,12 @@ const ProductManagement = () => {
             setSelectedProducts([...selectedProducts, idx]);
         }
     };
-
+    const getImageUrl = (img: any) => {
+        if (img && typeof img === 'object' && img.uri) return img.uri;
+        if (typeof img === 'string') return img;
+        return '';
+    };
+    
     const handleCheckAll = () => {
         if (selectAll) {
             setSelectedProducts([]);
@@ -71,9 +76,9 @@ const ProductManagement = () => {
           const cloudinaryUrl = await uploadImageToCloudinary(localUri);
       
           if (cloudinaryUrl) {
-            const newImages = [...productForm.images];
+            const newImages = [...productForm.imageURL];
             newImages[imgIdx] = { uri: cloudinaryUrl }; // Cloudinary URL
-            setProductForm({ ...productForm, images: newImages });
+            setProductForm({ ...productForm, imageURL: newImages });
           }
         }
       };
@@ -84,7 +89,7 @@ const ProductManagement = () => {
             name: '',
             price: '',
             description: '',
-            images: [PRODUCT_IMAGE, PRODUCT_IMAGE, PRODUCT_IMAGE], // mock images
+            imageURL: [PRODUCT_IMAGE, PRODUCT_IMAGE, PRODUCT_IMAGE], // mock images
             stockQuantity: 0, // mock stock quantity
         })
         setShowProductModal(true);
@@ -101,42 +106,47 @@ const ProductManagement = () => {
             name: prod.name,
             price: prod.price.toString(),
             description: prod.description || '',
-            images: [prod.imageURL, prod.imageURL, prod.imageURL], // mock
+            imageURL: [prod.imageURL, prod.imageURL, prod.imageURL], // mock
             stockQuantity: prod.stockQuantity || 0, // mock stock quantity
         });
         setShowProductModal(true);
     };
 
-    const handleAddOrUpdate = () => { 
-        if (editingProduct) {
-            const updatedProduct = {
-                name: productForm.name,
-                price: parseFloat(productForm.price),
-                description: productForm.description,
-                imageURL: productForm.images[0].uri, // Assuming first image is the main one
-                stockQuantity: productForm.stockQuantity, // Update stock quantity
-                eggId: editingProduct.eggId, // Keep the same eggId for update
-                storeId: store?.storeId || 2, // Use store ID from context
-                soldCount: editingProduct.soldCount, // Keep the same sold count
-            };
-            updateProduct(editingProduct.eggId, updatedProduct);
-        } else {
-            // Add new product
-            const newProduct = {
-                name: productForm.name,
-                price: parseFloat(productForm.price),
-                description: productForm.description,
-                imageURL: productForm.images[0].uri, // Assuming first image is the main one
-                storeId: store?.storeId || 2, // Use store ID from context
-                soldCount: 0, // Default value
-                stockQuantity: productForm.stockQuantity, // Use stock quantity from form
-            };
-            addProduct(newProduct);
-        }
-        setShowProductModal(false);
-        refetchStore(); // Refresh store data after adding/updating product
-        
+    
+const handleAddOrUpdate = async () => { 
+    const mainImageUrl = getImageUrl(productForm.imageURL[0]);
+    if (!mainImageUrl) {
+        alert('Please select a product image.');
+        return;
     }
+    if (editingProduct) {
+        const updatedProduct = {
+            name: productForm.name,
+            price: parseFloat(productForm.price),
+            description: productForm.description,
+            imageURL: mainImageUrl,
+            stockQuantity: productForm.stockQuantity,
+            eggId: editingProduct.eggId,
+            storeId: store?.storeId || 2,
+            soldCount: editingProduct.soldCount,
+        };
+        await updateProduct(editingProduct.eggId, updatedProduct);
+    } else {
+        const newProduct = {
+            name: productForm.name,
+            price: parseFloat(productForm.price),
+            description: productForm.description,
+            imageURL: mainImageUrl,
+            storeId: store?.storeId || 2,
+            soldCount: 0,
+            stockQuantity: productForm.stockQuantity,
+        };
+        await addProduct(newProduct);
+    }
+    setShowProductModal(false);
+    await refetchStore();
+    await refetch();
+};
 
     return (
         <View style={styles.bg}>
@@ -186,10 +196,11 @@ const ProductManagement = () => {
                         <TouchableOpacity
                             style={[styles.actionBtn, { backgroundColor: selectedProducts.length > 0 ? '#034C53' : '#bbb' }]}
                             disabled={selectedProducts.length === 0}
-                            onPress={() => {
+                            onPress={ async () => {
                                 selectedProducts.forEach(idx => deleteProduct(filteredProducts[idx].eggId));
                                 setSelectedProducts([]);
-                                refetchStore();
+                                await refetchStore();
+                                await refetch();
 
                             }
                             }>
@@ -247,7 +258,7 @@ const ProductManagement = () => {
                         <Text style={modalStyles.title}>{editingProduct === null ? 'CREATE A PRODUCT' : 'EDIT PRODUCT'}</Text>
                         <Text style={modalStyles.label}>Choose product’s photos</Text>
                         <View style={{ flexDirection: 'row', marginBottom: 16 }}>
-                            {productForm.images.map((img, i) => (
+                            {productForm.imageURL.map((img, i) => (
                                 <TouchableOpacity key={i} onPress={() => pickImage(i)}>
                                     <Image source={img} style={modalStyles.productImg} />
                                 </TouchableOpacity>

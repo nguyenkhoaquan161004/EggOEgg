@@ -1,6 +1,8 @@
 import { useAuth } from '@/contexts/AuthContent';
 import useAccount from '@/hooks/useAccount';
 import useOrdersBySeller from '@/hooks/useOrdersBySeller';
+import useUpdateOrderStatus from '@/hooks/useUpdateOrderStatus';
+import { Order } from '@/types/Order';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -32,15 +34,73 @@ const OrderManagement = () => {
     const [isActiveIdx, setIsActiveIdx] = useState<number | null>(null);
     const router = useRouter();
     const { userId } = useAuth();
-    const { orders, loading, error } = useOrdersBySeller(userId || 7);
+    const { orders, loading, error,refetch } = useOrdersBySeller(userId || 7);
     const [distributorId, setDistributorId] = useState<number | null>(null);
     const [buyerId, setBuyerId] = useState<number | null>(null);
     const { account, loading: accountLoading } = useAccount(distributorId || 6);
-    const {account:cusAccount, loading: cusLoading} = useAccount(buyerId || 3);
-    
+    const { account: cusAccount, loading: cusLoading } = useAccount(buyerId || 3);
+    const [orderId, setOrderId] = useState<number | null>(null);
+    const { updateOrderStatus } = useUpdateOrderStatus();
     if (loading) return <Text>Loading...</Text>;
     if (error) return <Text>Error loading orders: {error.message}</Text>;
-
+    const renderOrderActions = (order: Order) => {
+        if (order.status === 'ORDERED') {
+          return (
+            <>
+              <TouchableOpacity style={{
+                backgroundColor: '#176d6d',
+                padding: 8,
+                minWidth: 100,
+                borderRadius: 8,
+                alignItems: 'center',
+                      marginTop: 12,
+                
+                  }}
+                  onPress={async () => {
+                    setOrderId(order.orderId);
+                          updateOrderStatus({ orderId: order.orderId, newStatus: 1 });
+                          await refetch();  }}>
+                <Text style={styles.textInBtn}>Confirm</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={{
+                backgroundColor: '#d17878',
+                padding: 8,
+                minWidth: 100,
+                alignItems: 'center',
+                borderRadius: 8,
+                marginTop: 12,
+                  }}
+                  onPress={async () => {
+                    setOrderId(order.orderId);
+                      updateOrderStatus({ orderId: order.orderId, newStatus: 2 });
+                      await refetch();
+                  }}>
+                <Text style={styles.textInBtn}>Refuse</Text>
+              </TouchableOpacity>
+            </>
+          );
+        } else if (order.status === 'SELLER_CONFIRMED') {
+          return (
+            <TouchableOpacity style={{
+              backgroundColor: '#176d6d',
+              padding: 8,
+              minWidth: 100,
+              borderRadius: 8,
+              alignItems: 'center',
+              marginTop: 12,
+              }}
+              onPress={async () => {
+                setOrderId(order.orderId);
+                  updateOrderStatus({ orderId: order.orderId, newStatus: 3 });
+                  await refetch();
+              }}>
+              <Text style={styles.textInBtn}>Ship</Text>
+            </TouchableOpacity>
+          );
+        }
+        // Add more cases as needed
+        return null;
+      };
     return (
         <View style={styles.bg}>
             {/* Header */}
@@ -95,24 +155,12 @@ const OrderManagement = () => {
                                     <Text style={styles.bold}>Total price:</Text>
                                     <Text style={styles.totalPrice}>${order.payment.amount.toFixed(2)}</Text>
                                 </View>
-                                <TouchableOpacity style={{
-                                    backgroundColor: '#176d6d',
-                                    padding: 8,
-                                    minWidth: 100,
-                                    borderRadius: 8,
-                                    alignItems: 'center',
-                                    marginTop: 12,
-                                }}><Text style={styles.textInBtn}>Confirm</Text></TouchableOpacity>
-                                <TouchableOpacity style={{
-                                    backgroundColor: '#d17878',
-                                    padding: 8,
-                                    minWidth: 100,
-                                    alignItems: 'center',
-                                    borderRadius: 8,
-                                    marginTop: 12,
-                                }}><Text style={styles.textInBtn}>Refuse</Text></TouchableOpacity>
+                                <View style={styles.productsRow}>
+                                    {renderOrderActions(order)}
+                                </View>
+                                
                             </View>
-                        )}
+)}
 
                     </TouchableOpacity>
                 ))}

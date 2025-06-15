@@ -13,7 +13,7 @@ export interface Order {
   payment: Payment;
   returnRequest: any| null;
 }
-export type OrderStatus = 'ORDERED' | 'ARRIVED' | 'RECEIVED' | 'RETURN_REQUEST'|'RETURN' ; 
+export type OrderStatus = 'ORDERED' | 'SELLER_CONFIRMED' |'SELLER_REFUSED'|'SHIPPED_TO_DISTRIBUTOR'|'ARRIVED_AT_DISTRIBUTOR'|'RECEIVED_BY_BUYER' | 'RETURN_REQUEST'|'RETURN' ; 
 export interface CreateOrderCommand {
   buyerId: number;
   distributorId: number;

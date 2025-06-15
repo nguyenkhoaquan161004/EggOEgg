@@ -17,7 +17,7 @@ export default function DistributorMainScreen() {
     const { userId } = useAuth();
     const { account, loading } = useAccount(userId||2); // <-- get account info
     const router = useRouter();
-
+    const { setIsLoggedIn } = useAuth();
     const menuItems = [
         {
             id: 1,
@@ -29,14 +29,14 @@ export default function DistributorMainScreen() {
             id: 2,
             title: 'Confirm orders',
             icon: 'receipt',
-            badge: 12,
+            badge: '',
             onPress: () => { router.push( `${'/(distributor-tabs)'}/ConfirmOrdersScreen` ) },
         },
         {
             id: 3,
             title: 'Confirm exchange/return',
             icon: 'undo',
-            badge: 12,
+            badge:'',
             onPress: () => { router.push('/(distributor-tabs)/ExchangeAndReturnScreen') },
         },
         {
@@ -49,8 +49,7 @@ export default function DistributorMainScreen() {
             id: 5,
             title: 'Log out',
             icon: 'logout',
-            onPress: () => { },
-            isLogout: true,
+            onPress: () => setIsLoggedIn(false), isLogout: true,
         },
     ];
 

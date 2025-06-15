@@ -9,3 +9,6 @@ export interface Store {
   eggCount: number;
   eggs: Product[];
 }
+
+
+

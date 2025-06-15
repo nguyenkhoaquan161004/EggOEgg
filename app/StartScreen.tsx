@@ -2,7 +2,6 @@ import globalStyles from '@/assets/styles/GlobalStyle';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-
 export default function StartScreen() {
     const router = useRouter();
     return (
@@ -16,7 +15,7 @@ export default function StartScreen() {
             />
             {/* Buttons */}
             <View style={styles.btnContainer}>
-                <TouchableOpacity style={styles.button} onPress={() => router.push('/LoginScreen')}>
+                <TouchableOpacity style={styles.button} onPress={() => router.push('/(auth)/LoginScreen')}>
                     <Text style={[globalStyles.h3, { color: "#fff" }]}>Shop now!</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.policyBtn}>
@@ -76,4 +75,4 @@ const styles = StyleSheet.create({
         fontStyle: 'italic',
         fontSize: 18,
     },
-});
+});// StartScreen.tsx

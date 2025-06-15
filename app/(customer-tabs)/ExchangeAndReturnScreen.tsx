@@ -1,9 +1,9 @@
+import useCreateReturn from '@/hooks/useCreateReturn';
 import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker'; // Import Picker
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-
 export default function ExchangeAndReturnScreen() {
     const { order } = useLocalSearchParams(); // Get the order details from the route parameters
     const router = useRouter();
@@ -11,7 +11,8 @@ export default function ExchangeAndReturnScreen() {
     const parsedOrder = JSON.parse(order as string); // Parse the order details
     const [selectedOption, setSelectedOption] = useState('');
     const [isModalVisible, setIsModalVisible] = useState(false);
-
+    const [reason, setReason] = useState('User requested exchange/return');
+    const { createReturn } = useCreateReturn();
     const handleConfirm = () => {
         setIsModalVisible(true);
     }
@@ -21,7 +22,11 @@ export default function ExchangeAndReturnScreen() {
     };
 
     const handleModalConfirm = () => {
-        // Handle the confirmation logic here
+        createReturn({
+            orderId: parsedOrder.orderId as number,
+            reason: reason 
+        });
+
         setIsModalVisible(false);
         router.replace(`/(tabs)/MyOrders`);
     };
@@ -53,6 +58,7 @@ export default function ExchangeAndReturnScreen() {
                     style={[styles.input, styles.textArea]}
                     placeholder="Tell us your reason"
                     multiline
+                    onChangeText={(text) => setReason(text)}
                 />
 
                 <Text style={styles.label}>
